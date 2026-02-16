@@ -1,0 +1,20 @@
+# Backend Directory
+
+This directory will contain the Node.js/Express API server.
+
+## Structure
+```
+backend/
+├── src/
+│   ├── api/
+│   │   ├── routes/      # API routes
+│   │   ├── controllers/ # Request handlers
+│   │   └── middlewares/ # Custom middlewares
+│   ├── services/        # Business logic
+│   ├── models/          # Database models
+│   ├── utils/           # Utility functions
+│   └── config/          # Configuration
+├── tests/               # Test files
+├── prisma/              # Prisma schema
+└── package.json         # Dependencies
+```
