@@ -1,0 +1,20 @@
+# ML Services Directory
+
+This directory will contain the Python/FastAPI ML services.
+
+## Structure
+```
+ml-services/
+├── src/
+│   ├── models/
+│   │   ├── yield_prediction/    # Yield prediction models
+│   │   ├── price_forecasting/   # Price forecasting models
+│   │   └── crop_recommendation/ # Recommendation engine
+│   ├── data/                    # Data processing
+│   ├── api/                     # FastAPI endpoints
+│   └── utils/                   # Utilities
+├── notebooks/                   # Jupyter notebooks
+├── tests/                       # Test files
+├── models/                      # Trained models
+└── requirements.txt             # Dependencies
+```
