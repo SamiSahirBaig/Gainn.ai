@@ -21,21 +21,21 @@
 
 ## 1. Architecture Overview
 
-RootAura follows a **microservices-based architecture** with clear separation of concerns:
+RootAura follows a **modern full-stack architecture** with React frontend and Python backend:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                         CLIENT LAYER                            │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
 │  │   Web App    │  │  Mobile App  │  │     PWA      │          │
-│  │  (React.js)  │  │(React Native)│  │  (Next.js)   │          │
+│  │  (React.js)  │  │(React Native)│  │   (React)    │          │
 │  └──────────────┘  └──────────────┘  └──────────────┘          │
 └─────────────────────────────────────────────────────────────────┘
                               ↓ HTTPS/REST API
 ┌─────────────────────────────────────────────────────────────────┐
 │                      API GATEWAY LAYER                          │
 │  ┌──────────────────────────────────────────────────────────┐  │
-│  │  API Gateway (Express.js / FastAPI)                      │  │
+│  │  API Gateway (FastAPI / Python)                          │  │
 │  │  - Authentication & Authorization                        │  │
 │  │  - Rate Limiting                                         │  │
 │  │  - Request Routing                                       │  │
@@ -75,8 +75,8 @@ RootAura follows a **microservices-based architecture** with clear separation of
 │  │ (Relational) │  │  (NoSQL)     │  │   (Cache)    │          │
 │  └──────────────┘  └──────────────┘  └──────────────┘          │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │   S3/Blob    │  │  RabbitMQ    │  │  Elasticsearch│         │
-│  │  (Storage)   │  │ (Message Q)  │  │   (Search)   │          │
+│  │   S3/Blob    │  │   Celery     │  │  Elasticsearch│         │
+│  │  (Storage)   │  │ (Task Queue) │  │   (Search)   │          │
 │  └──────────────┘  └──────────────┘  └──────────────┘          │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
@@ -93,166 +93,213 @@ RootAura follows a **microservices-based architecture** with clear separation of
 
 ## 2. System Components
 
-### 2.1 Frontend Components
+### 2.1 Frontend Components (React)
 
-#### Web Application (React.js / Next.js)
+#### Web Application (React + Vite)
 ```
-src/
-├── components/
-│   ├── Dashboard/
-│   │   ├── FarmOverview.tsx
-│   │   ├── CropRecommendations.tsx
-│   │   └── ProfitAnalysis.tsx
-│   ├── LandAnalysis/
-│   │   ├── LandInput.tsx
-│   │   ├── SuitabilityMap.tsx
-│   │   └── SoilReport.tsx
-│   ├── YieldPrediction/
-│   │   ├── CropSelector.tsx
-│   │   ├── YieldChart.tsx
-│   │   └── ScenarioSimulator.tsx
-│   ├── MarketIntelligence/
-│   │   ├── PriceChart.tsx
-│   │   ├── MarketAlerts.tsx
-│   │   └── SellingStrategy.tsx
-│   └── ResourceSchedule/
-│       ├── Calendar.tsx
-│       ├── TaskList.tsx
-│       └── Notifications.tsx
-├── pages/
-│   ├── index.tsx
-│   ├── dashboard.tsx
-│   ├── land-analysis.tsx
-│   ├── crop-recommendation.tsx
-│   ├── market-intelligence.tsx
-│   └── profile.tsx
-├── services/
-│   ├── api.ts
-│   ├── auth.ts
-│   └── websocket.ts
-├── store/
-│   ├── userSlice.ts
-│   ├── landSlice.ts
-│   └── recommendationSlice.ts
-└── utils/
-    ├── formatters.ts
-    ├── validators.ts
-    └── constants.ts
+frontend/
+├── public/
+│   ├── index.html
+│   └── assets/
+├── src/
+│   ├── components/
+│   │   ├── Dashboard/
+│   │   │   ├── FarmOverview.jsx
+│   │   │   ├── CropRecommendations.jsx
+│   │   │   └── ProfitAnalysis.jsx
+│   │   ├── LandAnalysis/
+│   │   │   ├── LandInput.jsx
+│   │   │   ├── SuitabilityMap.jsx
+│   │   │   └── SoilReport.jsx
+│   │   ├── YieldPrediction/
+│   │   │   ├── CropSelector.jsx
+│   │   │   ├── YieldChart.jsx
+│   │   │   └── ScenarioSimulator.jsx
+│   │   ├── MarketIntelligence/
+│   │   │   ├── PriceChart.jsx
+│   │   │   ├── MarketAlerts.jsx
+│   │   │   └── SellingStrategy.jsx
+│   │   ├── ResourceSchedule/
+│   │   │   ├── Calendar.jsx
+│   │   │   ├── TaskList.jsx
+│   │   │   └── Notifications.jsx
+│   │   └── common/
+│   │       ├── Header.jsx
+│   │       ├── Footer.jsx
+│   │       ├── Sidebar.jsx
+│   │       └── Loading.jsx
+│   ├── pages/
+│   │   ├── Home.jsx
+│   │   ├── Dashboard.jsx
+│   │   ├── LandAnalysis.jsx
+│   │   ├── CropRecommendation.jsx
+│   │   ├── MarketIntelligence.jsx
+│   │   └── Profile.jsx
+│   ├── services/
+│   │   ├── api.js
+│   │   ├── auth.js
+│   │   ├── landService.js
+│   │   ├── cropService.js
+│   │   └── marketService.js
+│   ├── store/
+│   │   ├── index.js
+│   │   ├── slices/
+│   │   │   ├── userSlice.js
+│   │   │   ├── landSlice.js
+│   │   │   └── recommendationSlice.js
+│   │   └── middleware/
+│   ├── hooks/
+│   │   ├── useAuth.js
+│   │   ├── useLand.js
+│   │   └── useRecommendations.js
+│   ├── utils/
+│   │   ├── formatters.js
+│   │   ├── validators.js
+│   │   └── constants.js
+│   ├── styles/
+│   │   ├── global.css
+│   │   └── tailwind.css
+│   ├── App.jsx
+│   └── main.jsx
+├── package.json
+├── vite.config.js
+├── tailwind.config.js
+└── .env.example
 ```
 
 **Key Technologies:**
-- **Framework:** Next.js 14 (React 18)
+- **Framework:** React 18
+- **Build Tool:** Vite
 - **State Management:** Redux Toolkit / Zustand
 - **UI Library:** Tailwind CSS + shadcn/ui
 - **Charts:** Recharts / Chart.js
-- **Maps:** Leaflet / Mapbox GL
+- **Maps:** Leaflet / React-Leaflet
 - **Forms:** React Hook Form + Zod validation
+- **HTTP Client:** Axios
+- **Routing:** React Router v6
 
 ---
 
-### 2.2 Backend Components
+### 2.2 Backend Components (Python/FastAPI)
 
-#### API Gateway (Node.js / Express.js)
+#### API Server (FastAPI)
 ```
 backend/
-├── src/
+├── app/
+│   ├── __init__.py
+│   ├── main.py                    # FastAPI application entry
+│   ├── config.py                  # Configuration settings
+│   ├── dependencies.py            # Dependency injection
+│   │
 │   ├── api/
-│   │   ├── routes/
-│   │   │   ├── auth.routes.ts
-│   │   │   ├── land.routes.ts
-│   │   │   ├── crop.routes.ts
-│   │   │   ├── market.routes.ts
-│   │   │   └── user.routes.ts
-│   │   ├── controllers/
-│   │   │   ├── AuthController.ts
-│   │   │   ├── LandController.ts
-│   │   │   ├── CropController.ts
-│   │   │   └── MarketController.ts
-│   │   └── middlewares/
-│   │       ├── auth.middleware.ts
-│   │       ├── validation.middleware.ts
-│   │       └── rateLimit.middleware.ts
+│   │   ├── __init__.py
+│   │   ├── v1/
+│   │   │   ├── __init__.py
+│   │   │   ├── endpoints/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── auth.py
+│   │   │   │   ├── lands.py
+│   │   │   │   ├── crops.py
+│   │   │   │   ├── recommendations.py
+│   │   │   │   ├── predictions.py
+│   │   │   │   ├── market.py
+│   │   │   │   └── social.py
+│   │   │   └── api.py             # API router
+│   │
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── security.py            # JWT, password hashing
+│   │   ├── config.py              # Core configuration
+│   │   └── database.py            # Database connection
+│   │
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── user.py                # SQLAlchemy models
+│   │   ├── land.py
+│   │   ├── crop.py
+│   │   ├── recommendation.py
+│   │   └── market.py
+│   │
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   ├── user.py                # Pydantic schemas
+│   │   ├── land.py
+│   │   ├── crop.py
+│   │   ├── recommendation.py
+│   │   └── market.py
+│   │
 │   ├── services/
-│   │   ├── LandAnalysisService.ts
-│   │   ├── YieldPredictionService.ts
-│   │   ├── MarketIntelligenceService.ts
-│   │   ├── SocialIntelligenceService.ts
-│   │   └── ResourceScheduleService.ts
-│   ├── models/
-│   │   ├── User.model.ts
-│   │   ├── Land.model.ts
-│   │   ├── Crop.model.ts
-│   │   └── Recommendation.model.ts
+│   │   ├── __init__.py
+│   │   ├── land_analysis.py
+│   │   ├── yield_prediction.py
+│   │   ├── market_intelligence.py
+│   │   ├── social_intelligence.py
+│   │   ├── resource_schedule.py
+│   │   └── recommendation.py
+│   │
+│   ├── ml/
+│   │   ├── __init__.py
+│   │   ├── models/
+│   │   │   ├── yield_predictor.py
+│   │   │   ├── price_forecaster.py
+│   │   │   └── crop_recommender.py
+│   │   ├── preprocessing/
+│   │   │   ├── feature_engineering.py
+│   │   │   └── data_validation.py
+│   │   └── inference/
+│   │       └── predictor.py
+│   │
+│   ├── db/
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── session.py
+│   │   └── init_db.py
+│   │
 │   ├── utils/
-│   │   ├── logger.ts
-│   │   ├── errors.ts
-│   │   └── validators.ts
-│   └── config/
-│       ├── database.ts
-│       ├── redis.ts
-│       └── env.ts
+│   │   ├── __init__.py
+│   │   ├── logger.py
+│   │   ├── validators.py
+│   │   └── helpers.py
+│   │
+│   └── middleware/
+│       ├── __init__.py
+│       ├── auth.py
+│       ├── cors.py
+│       └── rate_limit.py
+│
 ├── tests/
-│   ├── unit/
-│   └── integration/
-└── package.json
-```
-
-**Key Technologies:**
-- **Runtime:** Node.js 20+
-- **Framework:** Express.js / Fastify
-- **Language:** TypeScript
-- **ORM:** Prisma / TypeORM
-- **Validation:** Zod / Joi
-- **Authentication:** JWT + Passport.js
-- **Testing:** Jest + Supertest
-
----
-
-### 2.3 ML/AI Services (Python)
-
-```
-ml-services/
-├── src/
-│   ├── models/
-│   │   ├── yield_prediction/
-│   │   │   ├── model.py
-│   │   │   ├── train.py
-│   │   │   └── inference.py
-│   │   ├── price_forecasting/
-│   │   │   ├── model.py
-│   │   │   ├── train.py
-│   │   │   └── inference.py
-│   │   └── crop_recommendation/
-│   │       ├── model.py
-│   │       ├── train.py
-│   │       └── inference.py
-│   ├── data/
-│   │   ├── preprocessing.py
-│   │   ├── feature_engineering.py
-│   │   └── validation.py
-│   ├── api/
-│   │   ├── main.py (FastAPI)
-│   │   ├── routes.py
-│   │   └── schemas.py
-│   └── utils/
-│       ├── logger.py
-│       └── metrics.py
-├── notebooks/
-│   ├── exploratory_analysis.ipynb
-│   └── model_evaluation.ipynb
-├── tests/
-└── requirements.txt
+│   ├── __init__.py
+│   ├── conftest.py
+│   ├── test_api/
+│   ├── test_services/
+│   └── test_ml/
+│
+├── alembic/                       # Database migrations
+│   ├── versions/
+│   └── env.py
+│
+├── scripts/
+│   ├── init_db.py
+│   └── seed_data.py
+│
+├── requirements.txt
+├── requirements-dev.txt
+├── .env.example
+├── alembic.ini
+└── pyproject.toml
 ```
 
 **Key Technologies:**
 - **Framework:** FastAPI
-- **ML Libraries:** 
-  - Scikit-learn (baseline models)
-  - TensorFlow / PyTorch (deep learning)
-  - XGBoost / LightGBM (gradient boosting)
-- **Data Processing:** Pandas, NumPy
-- **Visualization:** Matplotlib, Seaborn
-- **Model Serving:** TensorFlow Serving / TorchServe
+- **ORM:** SQLAlchemy 2.0
+- **Validation:** Pydantic v2
+- **Database:** PostgreSQL (asyncpg)
+- **Cache:** Redis (aioredis)
+- **Task Queue:** Celery
+- **ML:** Scikit-learn, TensorFlow, XGBoost
+- **Auth:** JWT (python-jose)
+- **Testing:** Pytest
+- **Migrations:** Alembic
 
 ---
 
@@ -261,282 +308,245 @@ ml-services/
 ### Frontend Stack
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| Framework | Next.js 14 | SSR, routing, optimization |
-| UI Library | React 18 | Component-based UI |
+| Framework | React 18 | Component-based UI |
+| Build Tool | Vite | Fast development & build |
+| Language | JavaScript/JSX | Frontend development |
 | Styling | Tailwind CSS | Utility-first CSS |
 | State Management | Redux Toolkit | Global state |
 | Forms | React Hook Form | Form handling |
 | Validation | Zod | Schema validation |
 | Charts | Recharts | Data visualization |
-| Maps | Leaflet | Geospatial display |
+| Maps | React-Leaflet | Geospatial display |
 | HTTP Client | Axios | API requests |
+| Routing | React Router v6 | Client-side routing |
 
 ### Backend Stack
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| Runtime | Node.js 20+ | JavaScript runtime |
-| Framework | Express.js | Web framework |
-| Language | TypeScript | Type safety |
+| Framework | FastAPI | High-performance API |
+| Language | Python 3.11+ | Backend development |
+| ORM | SQLAlchemy 2.0 | Database ORM |
+| Validation | Pydantic v2 | Data validation |
 | Database | PostgreSQL | Relational data |
 | NoSQL | MongoDB | Flexible schemas |
 | Cache | Redis | Performance |
-| ORM | Prisma | Database access |
-| Auth | JWT + Passport | Authentication |
-| Validation | Zod | Input validation |
-| Testing | Jest | Unit/integration tests |
+| Task Queue | Celery | Background tasks |
+| Auth | JWT (python-jose) | Authentication |
+| Testing | Pytest | Unit/integration tests |
+| Migrations | Alembic | Database migrations |
 
 ### ML/AI Stack
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| Language | Python 3.11+ | ML development |
-| Framework | FastAPI | ML API serving |
 | ML Library | Scikit-learn | Classical ML |
-| Deep Learning | TensorFlow | Neural networks |
-| Gradient Boosting | XGBoost | Ensemble models |
+| Deep Learning | TensorFlow/PyTorch | Neural networks |
+| Gradient Boosting | XGBoost/LightGBM | Ensemble models |
 | Data Processing | Pandas | Data manipulation |
 | Numerical | NumPy | Numerical computing |
-| Visualization | Matplotlib | Plotting |
+| Visualization | Matplotlib/Seaborn | Plotting |
+| Model Serving | FastAPI | ML API serving |
 
 ### DevOps Stack
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
 | Containerization | Docker | Application packaging |
-| Orchestration | Kubernetes | Container orchestration |
+| Orchestration | Docker Compose | Local development |
 | CI/CD | GitHub Actions | Automation |
 | Monitoring | Prometheus + Grafana | Metrics & dashboards |
 | Logging | ELK Stack | Log aggregation |
-| Cloud | AWS / GCP | Infrastructure |
+| Cloud | AWS / GCP / Railway | Infrastructure |
 
 ---
 
 ## 4. Data Architecture
 
-### 4.1 Database Schema (PostgreSQL)
+### 4.1 Database Schema (PostgreSQL with SQLAlchemy)
 
-```sql
--- Users Table
-CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    full_name VARCHAR(255),
-    phone VARCHAR(20),
-    location GEOGRAPHY(POINT),
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-);
+```python
+# models/user.py
+from sqlalchemy import Column, String, DateTime, Boolean
+from sqlalchemy.dialects.postgresql import UUID
+from app.db.base import Base
+import uuid
 
--- Lands Table
-CREATE TABLE lands (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    name VARCHAR(255),
-    location GEOGRAPHY(POINT) NOT NULL,
-    area_hectares DECIMAL(10, 2),
-    soil_type VARCHAR(100),
-    soil_ph DECIMAL(3, 1),
-    elevation_meters INTEGER,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-);
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    full_name = Column(String(255))
+    phone = Column(String(20))
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
--- Crops Table
-CREATE TABLE crops (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL,
-    scientific_name VARCHAR(255),
-    category VARCHAR(100),
-    growing_season VARCHAR(50),
-    water_requirement VARCHAR(50),
-    created_at TIMESTAMP DEFAULT NOW()
-);
+# models/land.py
+class Land(Base):
+    __tablename__ = "lands"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    name = Column(String(255))
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    area_hectares = Column(Float)
+    soil_type = Column(String(100))
+    soil_ph = Column(Float)
+    elevation_meters = Column(Integer)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
--- Recommendations Table
-CREATE TABLE recommendations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    land_id UUID REFERENCES lands(id) ON DELETE CASCADE,
-    crop_id UUID REFERENCES crops(id),
-    predicted_yield DECIMAL(10, 2),
-    predicted_price DECIMAL(10, 2),
-    expected_profit DECIMAL(12, 2),
-    confidence_score DECIMAL(3, 2),
-    recommendation_date DATE,
-    status VARCHAR(50),
-    created_at TIMESTAMP DEFAULT NOW()
-);
+# models/crop.py
+class Crop(Base):
+    __tablename__ = "crops"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name = Column(String(255), nullable=False)
+    scientific_name = Column(String(255))
+    category = Column(String(100))
+    growing_season = Column(String(50))
+    water_requirement = Column(String(50))
+    created_at = Column(DateTime, server_default=func.now())
 
--- Farmer Activities (Social Intelligence)
-CREATE TABLE farmer_activities (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    crop_id UUID REFERENCES crops(id),
-    land_id UUID REFERENCES lands(id),
-    planting_date DATE,
-    region VARCHAR(100),
-    anonymized BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Market Prices Table
-CREATE TABLE market_prices (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    crop_id UUID REFERENCES crops(id),
-    price DECIMAL(10, 2),
-    market_location VARCHAR(255),
-    price_date DATE,
-    source VARCHAR(100),
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Weather Data Cache
-CREATE TABLE weather_data (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    location GEOGRAPHY(POINT),
-    temperature DECIMAL(4, 1),
-    rainfall DECIMAL(6, 2),
-    humidity DECIMAL(4, 1),
-    recorded_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT NOW()
-);
+# models/recommendation.py
+class Recommendation(Base):
+    __tablename__ = "recommendations"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    land_id = Column(UUID(as_uuid=True), ForeignKey("lands.id"), nullable=False)
+    crop_id = Column(UUID(as_uuid=True), ForeignKey("crops.id"))
+    predicted_yield = Column(Float)
+    predicted_price = Column(Float)
+    expected_profit = Column(Float)
+    confidence_score = Column(Float)
+    recommendation_date = Column(DateTime)
+    status = Column(String(50))
+    created_at = Column(DateTime, server_default=func.now())
 ```
 
-### 4.2 NoSQL Schema (MongoDB)
+### 4.2 Pydantic Schemas
 
-```javascript
-// User Preferences Collection
-{
-  _id: ObjectId,
-  userId: UUID,
-  preferences: {
-    cropPreferences: [String],
-    riskTolerance: String, // "low", "medium", "high"
-    farmingExperience: Number,
-    notifications: {
-      email: Boolean,
-      sms: Boolean,
-      push: Boolean
-    }
-  },
-  updatedAt: Date
-}
+```python
+# schemas/land.py
+from pydantic import BaseModel, Field
+from typing import Optional
+from datetime import datetime
+import uuid
 
-// ML Model Predictions Collection
-{
-  _id: ObjectId,
-  landId: UUID,
-  cropId: UUID,
-  predictionType: String, // "yield", "price", "profit"
-  inputFeatures: Object,
-  prediction: Number,
-  confidence: Number,
-  modelVersion: String,
-  createdAt: Date
-}
+class LandBase(BaseModel):
+    name: Optional[str] = None
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+    area_hectares: Optional[float] = Field(None, gt=0)
+    soil_type: Optional[str] = None
+    soil_ph: Optional[float] = Field(None, ge=0, le=14)
+    elevation_meters: Optional[int] = None
 
-// Social Intelligence Patterns Collection
-{
-  _id: ObjectId,
-  region: String,
-  cropId: UUID,
-  plantingTrend: {
-    count: Number,
-    percentage: Number,
-    trend: String // "increasing", "stable", "decreasing"
-  },
-  supplyForecast: Number,
-  analysisDate: Date
-}
+class LandCreate(LandBase):
+    pass
+
+class LandUpdate(LandBase):
+    latitude: Optional[float] = Field(None, ge=-90, le=90)
+    longitude: Optional[float] = Field(None, ge=-180, le=180)
+
+class LandInDB(LandBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+    
+    class Config:
+        from_attributes = True
 ```
 
 ---
 
 ## 5. API Design
 
-### 5.1 RESTful API Endpoints
+### 5.1 RESTful API Endpoints (FastAPI)
 
-#### Authentication
-```
-POST   /api/v1/auth/register
-POST   /api/v1/auth/login
-POST   /api/v1/auth/logout
-POST   /api/v1/auth/refresh-token
-GET    /api/v1/auth/me
-```
+```python
+# app/api/v1/endpoints/lands.py
+from fastapi import APIRouter, Depends, HTTPException
+from typing import List
+from app.schemas.land import LandCreate, LandUpdate, LandInDB
+from app.services.land_analysis import LandAnalysisService
 
-#### Land Management
-```
-GET    /api/v1/lands
-POST   /api/v1/lands
-GET    /api/v1/lands/:id
-PUT    /api/v1/lands/:id
-DELETE /api/v1/lands/:id
-POST   /api/v1/lands/:id/analyze
-```
+router = APIRouter()
 
-#### Crop Recommendations
-```
-GET    /api/v1/recommendations
-POST   /api/v1/recommendations/generate
-GET    /api/v1/recommendations/:id
-POST   /api/v1/recommendations/:id/accept
-POST   /api/v1/recommendations/:id/reject
-```
+@router.post("/", response_model=LandInDB, status_code=201)
+async def create_land(
+    land: LandCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Create a new land parcel"""
+    return await LandAnalysisService.create_land(db, land, current_user.id)
 
-#### Yield Prediction
-```
-POST   /api/v1/predictions/yield
-POST   /api/v1/predictions/price
-POST   /api/v1/predictions/profit
-POST   /api/v1/predictions/simulate
-```
+@router.get("/", response_model=List[LandInDB])
+async def list_lands(
+    skip: int = 0,
+    limit: int = 100,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """List all lands for current user"""
+    return await LandAnalysisService.get_user_lands(db, current_user.id, skip, limit)
 
-#### Market Intelligence
-```
-GET    /api/v1/market/prices
-GET    /api/v1/market/trends
-GET    /api/v1/market/opportunities
-GET    /api/v1/market/forecast
-```
+@router.get("/{land_id}", response_model=LandInDB)
+async def get_land(
+    land_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get specific land details"""
+    land = await LandAnalysisService.get_land(db, land_id, current_user.id)
+    if not land:
+        raise HTTPException(status_code=404, detail="Land not found")
+    return land
 
-#### Social Intelligence
-```
-GET    /api/v1/social/trends
-GET    /api/v1/social/supply-forecast
-GET    /api/v1/social/regional-patterns
+@router.post("/{land_id}/analyze")
+async def analyze_land(
+    land_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Analyze land suitability"""
+    return await LandAnalysisService.analyze_suitability(db, land_id)
 ```
 
 ### 5.2 API Response Format
 
-```json
+```python
+# Standard success response
 {
-  "success": true,
-  "data": {
-    // Response data
-  },
-  "meta": {
-    "timestamp": "2026-02-16T10:30:00Z",
-    "version": "1.0"
-  }
+    "success": True,
+    "data": {
+        # Response data
+    },
+    "meta": {
+        "timestamp": "2026-02-16T10:30:00Z",
+        "version": "1.0"
+    }
 }
-```
 
-**Error Response:**
-```json
+# Error response
 {
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Invalid input data",
-    "details": [
-      {
-        "field": "soil_ph",
-        "message": "Must be between 0 and 14"
-      }
-    ]
-  },
-  "meta": {
-    "timestamp": "2026-02-16T10:30:00Z"
-  }
+    "success": False,
+    "error": {
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid input data",
+        "details": [
+            {
+                "field": "soil_ph",
+                "message": "Must be between 0 and 14"
+            }
+        ]
+    },
+    "meta": {
+        "timestamp": "2026-02-16T10:30:00Z"
+    }
 }
 ```
 
@@ -544,122 +554,148 @@ GET    /api/v1/social/regional-patterns
 
 ## 6. ML Pipeline
 
-### 6.1 Yield Prediction Model
+### 6.1 Yield Prediction Service
 
-**Input Features:**
-- Soil type, pH, nutrients (N, P, K)
-- Climate data (temperature, rainfall, humidity)
-- Historical yield data
-- Crop type
-- Land area
-- Elevation
+```python
+# app/ml/models/yield_predictor.py
+import joblib
+import numpy as np
+from typing import Dict, Any
 
-**Model Architecture:**
+class YieldPredictor:
+    def __init__(self, model_path: str):
+        self.model = joblib.load(model_path)
+        
+    def predict(self, features: Dict[str, Any]) -> Dict[str, float]:
+        """
+        Predict crop yield based on input features
+        
+        Args:
+            features: Dict containing soil_type, soil_ph, temperature, 
+                     rainfall, crop_type, etc.
+        
+        Returns:
+            Dict with predicted_yield, confidence_score
+        """
+        # Feature engineering
+        X = self._prepare_features(features)
+        
+        # Prediction
+        yield_pred = self.model.predict(X)[0]
+        confidence = self._calculate_confidence(X)
+        
+        return {
+            "predicted_yield": float(yield_pred),
+            "confidence_score": float(confidence),
+            "unit": "kg/hectare"
+        }
+    
+    def _prepare_features(self, features: Dict) -> np.ndarray:
+        # Feature engineering logic
+        pass
+    
+    def _calculate_confidence(self, X: np.ndarray) -> float:
+        # Confidence calculation
+        pass
 ```
-Input Layer (15 features)
-    ↓
-Dense Layer (64 neurons, ReLU)
-    ↓
-Dropout (0.2)
-    ↓
-Dense Layer (32 neurons, ReLU)
-    ↓
-Dropout (0.2)
-    ↓
-Dense Layer (16 neurons, ReLU)
-    ↓
-Output Layer (1 neuron, Linear)
+
+### 6.2 Model Training Pipeline
+
+```python
+# scripts/train_models.py
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.model_selection import train_test_split, cross_val_score
+import pandas as pd
+import joblib
+
+def train_yield_model():
+    # Load data
+    df = pd.read_csv('data/crop_yield_data.csv')
+    
+    # Feature engineering
+    X = prepare_features(df)
+    y = df['yield']
+    
+    # Split data
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+    
+    # Train model
+    model = GradientBoostingRegressor(
+        n_estimators=100,
+        learning_rate=0.1,
+        max_depth=5,
+        random_state=42
+    )
+    model.fit(X_train, y_train)
+    
+    # Evaluate
+    score = model.score(X_test, y_test)
+    print(f"Model R² Score: {score}")
+    
+    # Save model
+    joblib.dump(model, 'models/yield_predictor.pkl')
+    
+    return model
 ```
-
-**Training:**
-- Algorithm: Gradient Boosting (XGBoost) + Neural Network ensemble
-- Loss Function: Mean Squared Error (MSE)
-- Optimizer: Adam
-- Validation: 5-fold cross-validation
-- Metrics: RMSE, MAE, R²
-
-### 6.2 Price Forecasting Model
-
-**Input Features:**
-- Historical price data (time series)
-- Supply forecast
-- Demand indicators
-- Seasonal patterns
-- Market location
-
-**Model Architecture:**
-- LSTM (Long Short-Term Memory) for time series
-- Attention mechanism for important features
-- Multi-step forecasting (1, 3, 6 months)
-
-### 6.3 Crop Recommendation Engine
-
-**Algorithm:**
-- Multi-criteria decision analysis (MCDA)
-- Weighted scoring based on:
-  - Suitability score (30%)
-  - Predicted yield (25%)
-  - Expected profit (35%)
-  - Risk assessment (10%)
-
-**Output:**
-- Top 3 recommended crops
-- Confidence scores
-- Detailed reasoning
 
 ---
 
 ## 7. Security Architecture
 
-### 7.1 Authentication & Authorization
+### 7.1 Authentication (JWT)
 
+```python
+# app/core/security.py
+from datetime import datetime, timedelta
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
+
+SECRET_KEY = "your-secret-key"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+async def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    
+    user = await get_user_by_id(db, user_id)
+    if user is None:
+        raise credentials_exception
+    return user
 ```
-┌─────────────┐
-│   Client    │
-└──────┬──────┘
-       │ 1. Login Request (email, password)
-       ↓
-┌─────────────────────────────────┐
-│      API Gateway                │
-│  - Validate credentials         │
-│  - Generate JWT tokens          │
-│  - Return access + refresh      │
-└──────┬──────────────────────────┘
-       │ 2. JWT Token
-       ↓
-┌─────────────┐
-│   Client    │ (Stores token in httpOnly cookie)
-└──────┬──────┘
-       │ 3. Authenticated Request (with JWT)
-       ↓
-┌─────────────────────────────────┐
-│   Auth Middleware               │
-│  - Verify JWT signature         │
-│  - Check expiration             │
-│  - Extract user info            │
-└──────┬──────────────────────────┘
-       │ 4. Authorized Request
-       ↓
-┌─────────────────────────────────┐
-│   Protected Resource            │
-└─────────────────────────────────┘
-```
-
-**Security Measures:**
-- JWT with short expiration (15 minutes)
-- Refresh tokens (7 days)
-- httpOnly cookies (prevent XSS)
-- CSRF protection
-- Rate limiting (100 requests/minute)
-- Password hashing (bcrypt, 12 rounds)
-
-### 7.2 Data Privacy
-
-**Anonymization Strategy:**
-- User IDs hashed for social intelligence
-- Location data rounded to region level
-- No personally identifiable information (PII) in analytics
-- GDPR compliance (right to deletion, data export)
 
 ---
 
@@ -670,15 +706,14 @@ Output Layer (1 neuron, Linear)
 ```
 ┌─────────────────────────────────────┐
 │         Vercel (Frontend)           │
-│  - Next.js application              │
+│  - React application                │
 │  - Edge functions                   │
 │  - CDN distribution                 │
 └─────────────────────────────────────┘
                  ↓
 ┌─────────────────────────────────────┐
-│      Railway (Backend + ML)         │
-│  - Node.js API                      │
-│  - Python ML services               │
+│      Railway (Backend)              │
+│  - FastAPI application              │
 │  - PostgreSQL database              │
 │  - Redis cache                      │
 └─────────────────────────────────────┘
@@ -692,7 +727,7 @@ Output Layer (1 neuron, Linear)
 │                                                     │
 │  ┌──────────────────────────────────────────────┐  │
 │  │  CloudFront / Cloud CDN (Frontend)           │  │
-│  │  - Next.js static assets                     │  │
+│  │  - React static assets                       │  │
 │  │  - Global edge caching                       │  │
 │  └──────────────────────────────────────────────┘  │
 │                       ↓                             │
@@ -703,8 +738,8 @@ Output Layer (1 neuron, Linear)
 │  ┌──────────────────────────────────────────────┐  │
 │  │  ECS / Kubernetes Cluster                    │  │
 │  │  ┌────────────┐  ┌────────────┐              │  │
-│  │  │  API       │  │  ML        │              │  │
-│  │  │  Service   │  │  Service   │              │  │
+│  │  │  FastAPI   │  │  Celery    │              │  │
+│  │  │  Service   │  │  Workers   │              │  │
 │  │  │  (3 pods)  │  │  (2 pods)  │              │  │
 │  │  └────────────┘  └────────────┘              │  │
 │  └──────────────────────────────────────────────┘  │
@@ -712,11 +747,6 @@ Output Layer (1 neuron, Linear)
 │  ┌──────────────┐  ┌──────────────┐               │
 │  │  RDS         │  │  ElastiCache │               │
 │  │ (PostgreSQL) │  │   (Redis)    │               │
-│  └──────────────┘  └──────────────┘               │
-│                                                     │
-│  ┌──────────────┐  ┌──────────────┐               │
-│  │  S3          │  │  CloudWatch  │               │
-│  │  (Storage)   │  │  (Monitoring)│               │
 │  └──────────────┘  └──────────────┘               │
 └─────────────────────────────────────────────────────┘
 ```
@@ -726,8 +756,8 @@ Output Layer (1 neuron, Linear)
 ## 9. Scalability Strategy
 
 ### 9.1 Horizontal Scaling
-- **API Services:** Auto-scaling based on CPU/memory (2-10 instances)
-- **ML Services:** GPU-enabled instances for inference
+- **FastAPI Services:** Auto-scaling based on CPU/memory (2-10 instances)
+- **Celery Workers:** Task-based scaling for ML inference
 - **Database:** Read replicas for query distribution
 
 ### 9.2 Caching Strategy
@@ -737,12 +767,7 @@ Output Layer (1 neuron, Linear)
   - User sessions (TTL: 7 days)
   - ML predictions (TTL: 24 hours)
 
-### 9.3 Database Optimization
-- **Indexing:** Location-based queries (PostGIS)
-- **Partitioning:** Time-based partitioning for historical data
-- **Connection Pooling:** PgBouncer for PostgreSQL
-
-### 9.4 Performance Targets
+### 9.3 Performance Targets
 | Metric | Target |
 |--------|--------|
 | API Response Time | < 200ms (p95) |
@@ -753,26 +778,7 @@ Output Layer (1 neuron, Linear)
 
 ---
 
-## 10. Monitoring & Observability
-
-### 10.1 Metrics
-- **Application Metrics:** Request rate, error rate, latency
-- **Business Metrics:** User signups, recommendations generated, acceptance rate
-- **ML Metrics:** Model accuracy, prediction latency, drift detection
-
-### 10.2 Logging
-- **Structured Logging:** JSON format with correlation IDs
-- **Log Levels:** ERROR, WARN, INFO, DEBUG
-- **Retention:** 30 days (production), 7 days (development)
-
-### 10.3 Alerting
-- **Critical Alerts:** API downtime, database failures
-- **Warning Alerts:** High error rate, slow response times
-- **Info Alerts:** Deployment notifications, scaling events
-
----
-
-## 11. Development Workflow
+## 10. Development Workflow
 
 ```
 ┌─────────────┐
@@ -787,8 +793,8 @@ Output Layer (1 neuron, Linear)
        ↓
 ┌─────────────────────────────────┐
 │  GitHub Actions (CI)            │
-│  - Lint code                    │
-│  - Run tests                    │
+│  - Lint code (Black, Flake8)    │
+│  - Run tests (Pytest)           │
 │  - Build Docker image           │
 └──────┬──────────────────────────┘
        │ 3. Create Pull Request
@@ -808,25 +814,6 @@ Output Layer (1 neuron, Linear)
 
 ---
 
-## 12. Future Architecture Enhancements
-
-### Phase 2 (6 months)
-- **Real-time Data Pipeline:** Apache Kafka for streaming
-- **Mobile Apps:** React Native for iOS/Android
-- **IoT Integration:** Sensor data ingestion
-
-### Phase 3 (1 year)
-- **Satellite Imagery:** Computer vision for crop monitoring
-- **Blockchain:** Transparent crop tracking
-- **Marketplace:** Buyer-seller platform
-
-### Phase 4 (2+ years)
-- **Edge Computing:** On-farm processing
-- **Federated Learning:** Privacy-preserving ML
-- **Global Network:** Multi-region deployment
-
----
-
-**Document Status:** ✅ Approved  
+**Document Status:** ✅ Updated for React + Python Stack  
 **Next Review:** Post-MVP Development  
 **Maintained By:** RootAura Engineering Team
