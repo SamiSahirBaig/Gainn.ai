@@ -1,0 +1,13 @@
+# Documentation Directory
+
+This directory contains all project documentation.
+
+## Structure
+```
+docs/
+├── api/                 # API documentation
+├── ml/                  # ML model documentation
+├── deployment/          # Deployment guides
+├── architecture/        # Architecture diagrams
+└── user-guides/         # User guides
+```
