@@ -15,9 +15,9 @@ cd ROOTAURA
 docker-compose up -d
 
 # 3. Open your browser
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:3001
-# ML API: http://localhost:8000/docs
+# Frontend: http://localhost:5173
+# Backend API: http://localhost:8000
+# API Docs: http://localhost:8000/docs
 ```
 
 **That's it! You're ready to develop.** 🎉
@@ -27,7 +27,7 @@ docker-compose up -d
 ## 🛠️ Manual Setup (Without Docker)
 
 ### Prerequisites
-- Node.js 20+
+- Node.js 18+
 - Python 3.11+
 - PostgreSQL 15+
 - Redis 7+
@@ -40,13 +40,12 @@ git clone https://github.com/SamiSahirBaig/ROOTAURA.git
 cd ROOTAURA
 
 # Install frontend dependencies
-cd frontend && npm install && cd ..
+cd frontend
+npm install
+cd ..
 
 # Install backend dependencies
-cd backend && npm install && cd ..
-
-# Install ML dependencies
-cd ml-services
+cd backend
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -59,17 +58,16 @@ cd ..
 # Frontend
 cd frontend
 cp .env.example .env.local
-# Edit .env.local with your settings
+# Edit .env.local:
+# VITE_API_URL=http://localhost:8000
 
 # Backend
 cd ../backend
 cp .env.example .env
-# Edit .env with your database URL and secrets
-
-# ML Services
-cd ../ml-services
-cp .env.example .env
-# Edit .env with your settings
+# Edit .env:
+# DATABASE_URL=postgresql://rootaura:password@localhost:5432/rootaura
+# REDIS_URL=redis://localhost:6379
+# SECRET_KEY=your-secret-key-here
 ```
 
 ### Step 3: Setup Database
@@ -80,31 +78,40 @@ createdb rootaura
 
 # Run migrations
 cd backend
-npx prisma migrate dev
+alembic upgrade head
+
+# Seed data (optional)
+python scripts/seed_data.py
 ```
 
 ### Step 4: Start Services
 
 ```bash
 # Terminal 1 - Frontend
-cd frontend && npm run dev
+cd frontend
+npm run dev
 
 # Terminal 2 - Backend
-cd backend && npm run dev
+cd backend
+source venv/bin/activate
+uvicorn app.main:app --reload
 
-# Terminal 3 - ML Services
-cd ml-services && source venv/bin/activate && uvicorn src.api.main:app --reload
-
-# Terminal 4 - Redis
+# Terminal 3 - Redis
 redis-server
+
+# Terminal 4 - Celery Worker (optional)
+cd backend
+source venv/bin/activate
+celery -A app.celery_app worker --loglevel=info
 ```
 
 ### Step 5: Verify
 
 Open your browser:
-- Frontend: http://localhost:3000
-- Backend: http://localhost:3001/api/health
-- ML API: http://localhost:8000/docs
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000
+- API Docs: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
 ---
 
@@ -112,14 +119,25 @@ Open your browser:
 
 ```
 ROOTAURA/
-├── frontend/              # Next.js web app
-├── backend/               # Node.js API
-├── ml-services/           # Python ML services
-├── docs/                  # Documentation
+├── frontend/              # React + Vite web app
+│   ├── src/
+│   │   ├── components/   # React components
+│   │   ├── pages/        # Page components
+│   │   ├── services/     # API services
+│   │   └── store/        # Redux store
+│   └── package.json
+│
+├── backend/               # Python FastAPI server
+│   ├── app/
+│   │   ├── api/          # API endpoints
+│   │   ├── models/       # SQLAlchemy models
+│   │   ├── schemas/      # Pydantic schemas
+│   │   ├── services/     # Business logic
+│   │   └── ml/           # ML models
+│   └── requirements.txt
+│
 ├── REQUIREMENTS.md        # Product requirements
 ├── ARCHITECTURE.md        # System architecture
-├── ROADMAP.md            # Product roadmap
-├── PROJECT_SETUP.md      # Detailed setup guide
 └── docker-compose.yml    # Docker configuration
 ```
 
@@ -132,8 +150,8 @@ ROOTAURA/
 #### Day 1-2: Foundation ✅
 - [x] Project setup (DONE!)
 - [ ] Database schema
-- [ ] Basic UI components
-- [ ] API structure
+- [ ] Basic React components
+- [ ] FastAPI endpoints
 
 #### Day 3-4: Core Features
 - [ ] Land analysis module
@@ -141,7 +159,7 @@ ROOTAURA/
 - [ ] Profit calculator
 
 #### Day 5-6: Integration
-- [ ] Connect frontend to backend
+- [ ] Connect React to FastAPI
 - [ ] Add visualizations
 - [ ] Scenario simulator
 
@@ -154,35 +172,50 @@ ROOTAURA/
 
 ## 🔧 Essential Commands
 
-### Frontend
+### Frontend (React + Vite)
 ```bash
-npm run dev      # Start dev server
-npm run build    # Build for production
-npm test         # Run tests
-npm run lint     # Check code quality
-```
-
-### Backend
-```bash
-npm run dev          # Start dev server
-npx prisma studio    # Open database UI
-npx prisma migrate   # Run migrations
+npm run dev          # Start dev server (port 5173)
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
 npm test             # Run tests
 ```
 
-### ML Services
+### Backend (Python FastAPI)
 ```bash
-uvicorn src.api.main:app --reload  # Start dev server
-pytest                              # Run tests
-python -m src.models.train          # Train models
+# Development
+uvicorn app.main:app --reload              # Start dev server
+uvicorn app.main:app --reload --port 8001  # Custom port
+
+# Database
+alembic revision --autogenerate -m "message"  # Create migration
+alembic upgrade head                          # Run migrations
+alembic downgrade -1                          # Rollback one migration
+
+# Testing
+pytest                                     # Run all tests
+pytest tests/test_api/                    # Run specific tests
+pytest --cov=app                          # Run with coverage
+
+# Code Quality
+black .                                   # Format code
+flake8 .                                  # Lint code
+mypy app/                                 # Type checking
+
+# Celery (Background Tasks)
+celery -A app.celery_app worker --loglevel=info  # Start worker
+celery -A app.celery_app beat --loglevel=info    # Start scheduler
 ```
 
 ### Docker
 ```bash
-docker-compose up -d              # Start all services
-docker-compose logs -f [service]  # View logs
-docker-compose down               # Stop all services
-docker-compose down -v            # Stop and remove data
+docker-compose up -d                      # Start all services
+docker-compose --profile workers up -d    # Start with Celery workers
+docker-compose --profile tools up -d      # Start with management tools
+docker-compose logs -f [service]          # View logs
+docker-compose down                       # Stop all services
+docker-compose down -v                    # Stop and remove data
+docker-compose up -d --build              # Rebuild and start
 ```
 
 ---
@@ -202,7 +235,8 @@ docker-compose down -v            # Stop and remove data
 ### Port Already in Use
 ```bash
 # Find and kill process
-lsof -i :3000  # or :3001, :8000
+lsof -i :5173  # Frontend
+lsof -i :8000  # Backend
 kill -9 <PID>
 ```
 
@@ -234,24 +268,46 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### Node Modules Issues
+```bash
+# Clear cache and reinstall
+rm -rf node_modules package-lock.json
+npm cache clean --force
+npm install
+```
+
+### Alembic Migration Issues
+```bash
+# Reset migrations
+alembic downgrade base
+alembic upgrade head
+
+# Or recreate database
+dropdb rootaura
+createdb rootaura
+alembic upgrade head
+```
+
 ---
 
 ## 🎓 Learning Resources
 
 ### For Frontend Developers
-- [Next.js Documentation](https://nextjs.org/docs)
 - [React Documentation](https://react.dev)
+- [Vite Guide](https://vitejs.dev/guide/)
 - [Tailwind CSS](https://tailwindcss.com/docs)
+- [Redux Toolkit](https://redux-toolkit.js.org/)
 
 ### For Backend Developers
-- [Express.js Guide](https://expressjs.com/en/guide/routing.html)
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [PostgreSQL Tutorial](https://www.postgresql.org/docs/)
+- [FastAPI Documentation](https://fastapi.tiangolo.com)
+- [SQLAlchemy 2.0](https://docs.sqlalchemy.org/en/20/)
+- [Pydantic v2](https://docs.pydantic.dev/latest/)
+- [Alembic Tutorial](https://alembic.sqlalchemy.org/en/latest/tutorial.html)
 
 ### For ML Engineers
-- [FastAPI Documentation](https://fastapi.tiangolo.com)
 - [Scikit-learn Guide](https://scikit-learn.org/stable/user_guide.html)
 - [TensorFlow Tutorials](https://www.tensorflow.org/tutorials)
+- [XGBoost Documentation](https://xgboost.readthedocs.io/)
 
 ---
 
@@ -284,6 +340,36 @@ Build a working demo that shows:
 3. 🏗️ Review [ARCHITECTURE.md](./ARCHITECTURE.md) to understand the structure
 4. 💻 Start coding! Pick a task from [ROADMAP.md](./ROADMAP.md)
 5. 🚀 Build something amazing!
+
+---
+
+## 📊 API Documentation
+
+Once the backend is running, visit:
+- **Swagger UI:** http://localhost:8000/docs
+- **ReDoc:** http://localhost:8000/redoc
+
+These provide interactive API documentation where you can test endpoints directly.
+
+---
+
+## 🔑 Default Credentials (Development)
+
+**Database:**
+- Host: localhost
+- Port: 5432
+- Database: rootaura
+- Username: rootaura
+- Password: rootaura_dev_password
+
+**Redis:**
+- Host: localhost
+- Port: 6379
+
+**pgAdmin (if using Docker with tools profile):**
+- URL: http://localhost:5050
+- Email: admin@rootaura.io
+- Password: admin
 
 ---
 
