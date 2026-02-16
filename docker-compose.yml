@@ -1,0 +1,187 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: rootaura-postgres
+    environment:
+      POSTGRES_USER: rootaura
+      POSTGRES_PASSWORD: rootaura_dev_password
+      POSTGRES_DB: rootaura
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rootaura-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rootaura"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: rootaura-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - rootaura-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB (for flexible schemas)
+  mongodb:
+    image: mongo:7
+    container_name: rootaura-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: rootaura
+      MONGO_INITDB_ROOT_PASSWORD: rootaura_dev_password
+      MONGO_INITDB_DATABASE: rootaura
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - rootaura-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API (Node.js)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rootaura-backend
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://rootaura:rootaura_dev_password@postgres:5432/rootaura
+      REDIS_URL: redis://redis:6379
+      MONGODB_URL: mongodb://rootaura:rootaura_dev_password@mongodb:27017/rootaura
+      JWT_SECRET: dev_jwt_secret_change_in_production
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - rootaura-network
+    command: npm run dev
+
+  # ML Services (Python/FastAPI)
+  ml-services:
+    build:
+      context: ./ml-services
+      dockerfile: Dockerfile
+    container_name: rootaura-ml-services
+    environment:
+      ENVIRONMENT: development
+      PORT: 8000
+      DATABASE_URL: postgresql://rootaura:rootaura_dev_password@postgres:5432/rootaura
+      REDIS_URL: redis://redis:6379
+      MODEL_PATH: /app/models
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ml-services:/app
+      - ml_models:/app/models
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - rootaura-network
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Frontend (Next.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rootaura-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_ML_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+      - ml-services
+    networks:
+      - rootaura-network
+    command: npm run dev
+
+  # pgAdmin (Database Management UI)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: rootaura-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@rootaura.io
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - rootaura-network
+    profiles:
+      - tools
+
+  # Redis Commander (Redis Management UI)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: rootaura-redis-commander
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - rootaura-network
+    profiles:
+      - tools
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  mongodb_data:
+    driver: local
+  ml_models:
+    driver: local
+
+networks:
+  rootaura-network:
+    driver: bridge
+
+# Usage:
+# Start all services: docker-compose up -d
+# Start with tools: docker-compose --profile tools up -d
+# Stop all services: docker-compose down
+# View logs: docker-compose logs -f [service_name]
+# Rebuild: docker-compose up -d --build
