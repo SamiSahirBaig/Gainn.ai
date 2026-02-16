@@ -89,11 +89,11 @@ Personalized farming plan with:
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    User Interface Layer                 │
-│  (Web App, Mobile App, Progressive Web App)             │
+│              (React Web App + Mobile App)               │
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
-│                   API Gateway / Backend                  │
+│                   Python Backend (FastAPI)              │
 │  (Authentication, Authorization, Request Routing)        │
 └─────────────────────────────────────────────────────────┘
                           ↓
@@ -116,25 +116,28 @@ Personalized farming plan with:
 ## 🛠️ Technology Stack
 
 ### Frontend
-- **Framework:** Next.js 14 (React 18)
+- **Framework:** React 18
+- **Build Tool:** Vite
 - **Styling:** Tailwind CSS + shadcn/ui
 - **State:** Redux Toolkit
 - **Charts:** Recharts
-- **Maps:** Leaflet
+- **Maps:** React-Leaflet
+- **Routing:** React Router v6
 
 ### Backend
-- **Runtime:** Node.js 20+
-- **Framework:** Express.js
-- **Language:** TypeScript
-- **Database:** PostgreSQL + MongoDB
+- **Framework:** FastAPI (Python 3.11+)
+- **ORM:** SQLAlchemy 2.0
+- **Validation:** Pydantic v2
+- **Database:** PostgreSQL
 - **Cache:** Redis
-- **ORM:** Prisma
+- **Task Queue:** Celery
+- **Migrations:** Alembic
 
 ### ML/AI
-- **Language:** Python 3.11+
 - **Framework:** FastAPI
 - **ML:** Scikit-learn, TensorFlow, XGBoost
 - **Data:** Pandas, NumPy
+- **Visualization:** Matplotlib, Seaborn
 
 ### DevOps
 - **Containerization:** Docker
@@ -148,35 +151,30 @@ Personalized farming plan with:
 
 ```
 ROOTAURA/
-├── frontend/                 # Next.js web application
+├── frontend/                 # React web application
 │   ├── src/
 │   │   ├── components/      # React components
-│   │   ├── pages/           # Next.js pages
+│   │   ├── pages/           # Page components
 │   │   ├── services/        # API services
 │   │   ├── store/           # Redux store
+│   │   ├── hooks/           # Custom hooks
 │   │   └── utils/           # Utility functions
+│   ├── public/              # Static assets
 │   └── package.json
 │
-├── backend/                  # Node.js API server
-│   ├── src/
-│   │   ├── api/             # Routes & controllers
+├── backend/                  # Python FastAPI server
+│   ├── app/
+│   │   ├── api/             # API endpoints
+│   │   ├── models/          # SQLAlchemy models
+│   │   ├── schemas/         # Pydantic schemas
 │   │   ├── services/        # Business logic
-│   │   ├── models/          # Database models
-│   │   └── utils/           # Utilities
-│   └── package.json
-│
-├── ml-services/              # Python ML services
-│   ├── src/
-│   │   ├── models/          # ML models
-│   │   ├── data/            # Data processing
-│   │   └── api/             # FastAPI endpoints
+│   │   ├── ml/              # ML models & inference
+│   │   └── core/            # Core utilities
+│   ├── tests/               # Test files
+│   ├── alembic/             # Database migrations
 │   └── requirements.txt
 │
 ├── docs/                     # Documentation
-│   ├── api/                 # API documentation
-│   ├── ml/                  # ML model docs
-│   └── deployment/          # Deployment guides
-│
 ├── REQUIREMENTS.md           # Product requirements
 ├── ARCHITECTURE.md           # System architecture
 └── README.md                # This file
@@ -187,7 +185,7 @@ ROOTAURA/
 ## 🚦 Getting Started
 
 ### Prerequisites
-- Node.js 20+
+- Node.js 18+
 - Python 3.11+
 - PostgreSQL 15+
 - Redis 7+
@@ -212,42 +210,42 @@ npm run dev
 3. **Setup Backend**
 ```bash
 cd backend
-npm install
-cp .env.example .env
-npx prisma migrate dev
-npm run dev
-```
-
-4. **Setup ML Services**
-```bash
-cd ml-services
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn src.api.main:app --reload
+cp .env.example .env
+alembic upgrade head
+uvicorn app.main:app --reload
+```
+
+4. **Setup Database**
+```bash
+# Create PostgreSQL database
+createdb rootaura
+
+# Run migrations
+cd backend
+alembic upgrade head
+
+# Seed data (optional)
+python scripts/seed_data.py
 ```
 
 ### Environment Variables
 
 **Frontend (.env.local)**
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
-NEXT_PUBLIC_ML_API_URL=http://localhost:8000
+VITE_API_URL=http://localhost:8000
+VITE_MAPBOX_TOKEN=your_mapbox_token_here
 ```
 
 **Backend (.env)**
 ```env
 DATABASE_URL=postgresql://user:password@localhost:5432/rootaura
 REDIS_URL=redis://localhost:6379
-JWT_SECRET=your-secret-key
-PORT=3001
-```
-
-**ML Services (.env)**
-```env
-DATABASE_URL=postgresql://user:password@localhost:5432/rootaura
-MODEL_PATH=./models
-PORT=8000
+SECRET_KEY=your-secret-key
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
 ---
@@ -256,9 +254,9 @@ PORT=8000
 
 - **[Product Requirements](./REQUIREMENTS.md)** - Detailed PRD
 - **[Architecture](./ARCHITECTURE.md)** - System design and architecture
-- **[API Documentation](./docs/api/)** - API endpoints and usage
-- **[ML Models](./docs/ml/)** - Model documentation
-- **[Deployment Guide](./docs/deployment/)** - Deployment instructions
+- **[Project Setup](./PROJECT_SETUP.md)** - Detailed setup instructions
+- **[Quick Start](./QUICKSTART.md)** - 5-minute quick start guide
+- **[Roadmap](./ROADMAP.md)** - Product roadmap
 
 ---
 
