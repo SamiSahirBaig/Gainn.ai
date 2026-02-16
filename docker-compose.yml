@@ -57,24 +57,25 @@ services:
       timeout: 5s
       retries: 5
 
-  # Backend API (Node.js)
+  # Backend API (Python/FastAPI)
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: rootaura-backend
     environment:
-      NODE_ENV: development
-      PORT: 3001
+      ENVIRONMENT: development
       DATABASE_URL: postgresql://rootaura:rootaura_dev_password@postgres:5432/rootaura
       REDIS_URL: redis://redis:6379
       MONGODB_URL: mongodb://rootaura:rootaura_dev_password@mongodb:27017/rootaura
-      JWT_SECRET: dev_jwt_secret_change_in_production
+      SECRET_KEY: dev_jwt_secret_change_in_production
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
     ports:
-      - "3001:3001"
+      - "8000:8000"
     volumes:
       - ./backend:/app
-      - /app/node_modules
+      - ml_models:/app/models
     depends_on:
       postgres:
         condition: service_healthy
@@ -84,55 +85,50 @@ services:
         condition: service_healthy
     networks:
       - rootaura-network
-    command: npm run dev
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-  # ML Services (Python/FastAPI)
-  ml-services:
+  # Celery Worker (Background Tasks)
+  celery-worker:
     build:
-      context: ./ml-services
+      context: ./backend
       dockerfile: Dockerfile
-    container_name: rootaura-ml-services
+    container_name: rootaura-celery-worker
     environment:
       ENVIRONMENT: development
-      PORT: 8000
       DATABASE_URL: postgresql://rootaura:rootaura_dev_password@postgres:5432/rootaura
       REDIS_URL: redis://redis:6379
-      MODEL_PATH: /app/models
-    ports:
-      - "8000:8000"
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
     volumes:
-      - ./ml-services:/app
+      - ./backend:/app
       - ml_models:/app/models
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - redis
+      - postgres
     networks:
       - rootaura-network
-    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+    command: celery -A app.celery_app worker --loglevel=info
+    profiles:
+      - workers
 
-  # Frontend (Next.js)
+  # Frontend (React + Vite)
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: rootaura-frontend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3001
-      NEXT_PUBLIC_ML_API_URL: http://localhost:8000
+      VITE_API_URL: http://localhost:8000
     ports:
-      - "3000:3000"
+      - "5173:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
-      - /app/.next
     depends_on:
       - backend
-      - ml-services
     networks:
       - rootaura-network
-    command: npm run dev
+    command: npm run dev -- --host
 
   # pgAdmin (Database Management UI)
   pgadmin:
@@ -181,7 +177,9 @@ networks:
 
 # Usage:
 # Start all services: docker-compose up -d
+# Start with workers: docker-compose --profile workers up -d
 # Start with tools: docker-compose --profile tools up -d
+# Start everything: docker-compose --profile workers --profile tools up -d
 # Stop all services: docker-compose down
 # View logs: docker-compose logs -f [service_name]
 # Rebuild: docker-compose up -d --build
