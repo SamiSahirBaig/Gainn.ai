@@ -1,6 +1,6 @@
 # RootAura - Project Setup Guide
 
-This guide will help you set up the RootAura development environment on your local machine.
+This guide will help you set up the RootAura development environment with **React frontend** and **Python backend**.
 
 ---
 
@@ -18,7 +18,7 @@ This guide will help you set up the RootAura development environment on your loc
 ## Prerequisites
 
 ### Required Software
-- **Node.js** 20+ ([Download](https://nodejs.org/))
+- **Node.js** 18+ ([Download](https://nodejs.org/))
 - **Python** 3.11+ ([Download](https://www.python.org/))
 - **PostgreSQL** 15+ ([Download](https://www.postgresql.org/))
 - **Redis** 7+ ([Download](https://redis.io/))
@@ -30,8 +30,9 @@ This guide will help you set up the RootAura development environment on your loc
   - ESLint
   - Prettier
   - Python
-  - Prisma
+  - Pylance
   - Tailwind CSS IntelliSense
+  - Thunder Client (API testing)
 
 ---
 
@@ -48,9 +49,8 @@ cd ROOTAURA
 docker-compose up -d
 
 # 3. Access the application
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:3001
-# ML Services: http://localhost:8000
+# Frontend: http://localhost:5173
+# Backend API: http://localhost:8000
 # API Docs: http://localhost:8000/docs
 ```
 
@@ -63,6 +63,13 @@ docker-compose --profile tools up -d
 # Access management tools
 # pgAdmin: http://localhost:5050 (admin@rootaura.io / admin)
 # Redis Commander: http://localhost:8081
+```
+
+### With Celery Workers
+
+```bash
+# Start with background task workers
+docker-compose --profile workers up -d
 ```
 
 ### Docker Commands
@@ -92,7 +99,7 @@ git clone https://github.com/SamiSahirBaig/ROOTAURA.git
 cd ROOTAURA
 ```
 
-### 2. Setup Frontend
+### 2. Setup Frontend (React + Vite)
 
 ```bash
 cd frontend
@@ -104,48 +111,19 @@ npm install
 cp .env.example .env.local
 
 # Edit .env.local with your configuration
-# NEXT_PUBLIC_API_URL=http://localhost:3001
-# NEXT_PUBLIC_ML_API_URL=http://localhost:8000
+# VITE_API_URL=http://localhost:8000
+# VITE_MAPBOX_TOKEN=your_mapbox_token_here
 
 # Start development server
 npm run dev
 ```
 
-Frontend will be available at: http://localhost:3000
+Frontend will be available at: http://localhost:5173
 
-### 3. Setup Backend
+### 3. Setup Backend (Python FastAPI)
 
 ```bash
 cd backend
-
-# Install dependencies
-npm install
-
-# Copy environment file
-cp .env.example .env
-
-# Edit .env with your configuration
-# DATABASE_URL=postgresql://user:password@localhost:5432/rootaura
-# REDIS_URL=redis://localhost:6379
-# JWT_SECRET=your-secret-key
-# PORT=3001
-
-# Run database migrations
-npx prisma migrate dev
-
-# Seed database (optional)
-npm run seed
-
-# Start development server
-npm run dev
-```
-
-Backend API will be available at: http://localhost:3001
-
-### 4. Setup ML Services
-
-```bash
-cd ml-services
 
 # Create virtual environment
 python -m venv venv
@@ -163,15 +141,23 @@ pip install -r requirements.txt
 cp .env.example .env
 
 # Edit .env with your configuration
-# DATABASE_URL=postgresql://user:password@localhost:5432/rootaura
-# MODEL_PATH=./models
-# PORT=8000
+# DATABASE_URL=postgresql://rootaura:password@localhost:5432/rootaura
+# REDIS_URL=redis://localhost:6379
+# SECRET_KEY=your-secret-key-here
+# ALGORITHM=HS256
+# ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Run database migrations
+alembic upgrade head
+
+# Seed database (optional)
+python scripts/seed_data.py
 
 # Start development server
-uvicorn src.api.main:app --reload --port 8000
+uvicorn app.main:app --reload
 ```
 
-ML API will be available at: http://localhost:8000
+Backend API will be available at: http://localhost:8000
 API Documentation: http://localhost:8000/docs
 
 ---
@@ -182,23 +168,24 @@ API Documentation: http://localhost:8000/docs
 
 ```env
 # API Endpoints
-NEXT_PUBLIC_API_URL=http://localhost:3001
-NEXT_PUBLIC_ML_API_URL=http://localhost:8000
+VITE_API_URL=http://localhost:8000
 
 # Feature Flags
-NEXT_PUBLIC_ENABLE_ANALYTICS=false
-NEXT_PUBLIC_ENABLE_SOCIAL_INTELLIGENCE=true
+VITE_ENABLE_ANALYTICS=false
+VITE_ENABLE_SOCIAL_INTELLIGENCE=true
 
 # Map Configuration
-NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token_here
+VITE_MAPBOX_TOKEN=your_mapbox_token_here
+
+# Environment
+VITE_ENV=development
 ```
 
 ### Backend (.env)
 
 ```env
-# Server
-NODE_ENV=development
-PORT=3001
+# Environment
+ENVIRONMENT=development
 
 # Database
 DATABASE_URL=postgresql://rootaura:password@localhost:5432/rootaura
@@ -210,40 +197,24 @@ REDIS_URL=redis://localhost:6379
 MONGODB_URL=mongodb://localhost:27017/rootaura
 
 # Authentication
-JWT_SECRET=your-super-secret-jwt-key-change-in-production
-JWT_EXPIRES_IN=7d
+SECRET_KEY=your-super-secret-jwt-key-change-in-production
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Celery (Background Tasks)
+CELERY_BROKER_URL=redis://localhost:6379/0
+CELERY_RESULT_BACKEND=redis://localhost:6379/0
 
 # External APIs
 WEATHER_API_KEY=your_weather_api_key
 MARKET_DATA_API_KEY=your_market_api_key
 
 # CORS
-CORS_ORIGIN=http://localhost:3000
-```
+CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
 
-### ML Services (.env)
-
-```env
-# Environment
-ENVIRONMENT=development
-PORT=8000
-
-# Database
-DATABASE_URL=postgresql://rootaura:password@localhost:5432/rootaura
-
-# Redis
-REDIS_URL=redis://localhost:6379
-
-# Model Configuration
+# ML Models
 MODEL_PATH=./models
 MODEL_VERSION=1.0.0
-
-# ML Settings
-BATCH_SIZE=32
-MAX_WORKERS=4
-
-# External APIs
-WEATHER_API_KEY=your_weather_api_key
 ```
 
 ---
@@ -263,10 +234,11 @@ CREATE DATABASE rootaura;
 
 # Run migrations (from backend directory)
 cd backend
-npx prisma migrate dev
+source venv/bin/activate
+alembic upgrade head
 
-# View database
-npx prisma studio
+# Create initial admin user (optional)
+python scripts/create_admin.py
 ```
 
 ### Redis Setup
@@ -305,20 +277,25 @@ db.createUser({
 **Option 1: Run all services separately**
 
 ```bash
-# Terminal 1 - Frontend
-cd frontend && npm run dev
+# Terminal 1 - Frontend (React + Vite)
+cd frontend
+npm run dev
 
-# Terminal 2 - Backend
-cd backend && npm run dev
+# Terminal 2 - Backend (FastAPI)
+cd backend
+source venv/bin/activate  # Windows: venv\Scripts\activate
+uvicorn app.main:app --reload
 
-# Terminal 3 - ML Services
-cd ml-services && source venv/bin/activate && uvicorn src.api.main:app --reload
-
-# Terminal 4 - Redis (if not running)
+# Terminal 3 - Redis (if not running)
 redis-server
 
-# Terminal 5 - PostgreSQL (if not running)
+# Terminal 4 - PostgreSQL (if not running)
 postgres -D /usr/local/var/postgres
+
+# Terminal 5 - Celery Worker (optional)
+cd backend
+source venv/bin/activate
+celery -A app.celery_app worker --loglevel=info
 ```
 
 **Option 2: Use Docker Compose**
@@ -333,16 +310,12 @@ docker-compose up -d
 # Frontend
 cd frontend
 npm run build
-npm start
+npm run preview
 
 # Backend
 cd backend
-npm run build
-npm start
-
-# ML Services
-cd ml-services
-gunicorn -w 4 -k uvicorn.workers.UvicornWorker src.api.main:app
+source venv/bin/activate
+gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
 ```
 
 ---
@@ -353,13 +326,13 @@ gunicorn -w 4 -k uvicorn.workers.UvicornWorker src.api.main:app
 
 ```bash
 # Frontend
-curl http://localhost:3000
+curl http://localhost:5173
 
 # Backend API
-curl http://localhost:3001/api/health
+curl http://localhost:8000/api/v1/health
 
-# ML Services
-curl http://localhost:8000/health
+# API Documentation
+open http://localhost:8000/docs
 
 # PostgreSQL
 psql -U rootaura -d rootaura -c "SELECT version();"
@@ -372,13 +345,16 @@ redis-cli ping
 
 ```bash
 # Frontend
-cd frontend && npm test
+cd frontend
+npm test
 
 # Backend
-cd backend && npm test
+cd backend
+source venv/bin/activate
+pytest
 
-# ML Services
-cd ml-services && pytest
+# With coverage
+pytest --cov=app --cov-report=html
 ```
 
 ---
@@ -389,7 +365,8 @@ cd ml-services && pytest
 
 ```bash
 # Find process using port
-lsof -i :3000  # or :3001, :8000
+lsof -i :5173  # Frontend
+lsof -i :8000  # Backend
 
 # Kill process
 kill -9 <PID>
@@ -402,12 +379,12 @@ kill -9 <PID>
 pg_isready
 
 # Check connection string
-psql "postgresql://user:password@localhost:5432/rootaura"
+psql "postgresql://rootaura:password@localhost:5432/rootaura"
 
 # Reset database
 dropdb rootaura
 createdb rootaura
-cd backend && npx prisma migrate dev
+cd backend && alembic upgrade head
 ```
 
 ### Redis Connection Issues
@@ -440,6 +417,20 @@ npm cache clean --force
 npm install
 ```
 
+### Alembic Migration Issues
+
+```bash
+# Check migration status
+alembic current
+
+# Reset migrations
+alembic downgrade base
+alembic upgrade head
+
+# Create new migration
+alembic revision --autogenerate -m "description"
+```
+
 ### Docker Issues
 
 ```bash
@@ -460,13 +451,12 @@ docker-compose up -d --build
 
 2. ✅ **Explore the codebase**
    - Frontend: `frontend/src/`
-   - Backend: `backend/src/`
-   - ML Services: `ml-services/src/`
+   - Backend: `backend/app/`
 
 3. ✅ **Run the tests**
    ```bash
-   npm test  # Frontend & Backend
-   pytest    # ML Services
+   npm test      # Frontend
+   pytest        # Backend
    ```
 
 4. ✅ **Start developing**
@@ -479,34 +469,40 @@ docker-compose up -d --build
 
 ## Useful Commands
 
-### Frontend
+### Frontend (React + Vite)
 ```bash
 npm run dev          # Start development server
 npm run build        # Build for production
-npm run start        # Start production server
+npm run preview      # Preview production build
 npm run lint         # Run ESLint
 npm run format       # Format code with Prettier
 npm test             # Run tests
 ```
 
-### Backend
+### Backend (Python FastAPI)
 ```bash
-npm run dev          # Start development server
-npm run build        # Build TypeScript
-npm run start        # Start production server
-npm run lint         # Run ESLint
-npm test             # Run tests
-npx prisma studio    # Open Prisma Studio
-npx prisma migrate   # Run migrations
-```
+# Development
+uvicorn app.main:app --reload              # Start dev server
+uvicorn app.main:app --reload --port 8001  # Custom port
 
-### ML Services
-```bash
-uvicorn src.api.main:app --reload  # Start dev server
-pytest                              # Run tests
-black .                             # Format code
-flake8 .                            # Lint code
-python -m src.models.train          # Train models
+# Database
+alembic revision --autogenerate -m "msg"   # Create migration
+alembic upgrade head                       # Run migrations
+alembic downgrade -1                       # Rollback
+
+# Testing
+pytest                                     # Run all tests
+pytest --cov=app                          # With coverage
+pytest -v                                 # Verbose
+
+# Code Quality
+black .                                   # Format code
+flake8 .                                  # Lint code
+mypy app/                                 # Type checking
+
+# Celery
+celery -A app.celery_app worker --loglevel=info  # Worker
+celery -A app.celery_app beat --loglevel=info    # Scheduler
 ```
 
 ---
