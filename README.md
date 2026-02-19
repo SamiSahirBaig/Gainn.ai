@@ -1,4 +1,4 @@
-# 🌱 RootAura - Social AI Agricultural Decision Platform
+# 🌱 GAINN - Global Agriculture Intelligence Neural Network
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
@@ -6,7 +6,7 @@
 
 > **Transforming farming from uncertainty into intelligent decision-making**
 
-RootAura is a social AI-powered agricultural decision platform that helps farmers determine the most profitable crop to grow on their land based on environmental suitability, predicted yield, market demand, and collective farmer activity.
+GAINN (Global Agriculture Intelligence Neural Network) is a social AI-powered agricultural decision platform that helps farmers determine the most profitable crop to grow on their land based on environmental suitability, predicted yield, market demand, and collective farmer activity.
 
 ---
 
@@ -26,7 +26,7 @@ Farmers face critical challenges:
 
 ## 💡 Our Solution
 
-RootAura provides:
+GAINN provides:
 - ✅ **Data-driven crop recommendations** based on land analysis
 - ✅ **Yield prediction** using machine learning
 - ✅ **Profit optimization** through market intelligence
@@ -150,7 +150,7 @@ Personalized farming plan with:
 ## 📁 Project Structure
 
 ```
-ROOTAURA/
+GAINN/
 ├── frontend/                 # React web application
 │   ├── src/
 │   │   ├── components/      # React components
@@ -221,7 +221,7 @@ uvicorn app.main:app --reload
 4. **Setup Database**
 ```bash
 # Create PostgreSQL database
-createdb rootaura
+createdb gainn
 
 # Run migrations
 cd backend
@@ -241,7 +241,7 @@ VITE_MAPBOX_TOKEN=your_mapbox_token_here
 
 **Backend (.env)**
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/rootaura
+DATABASE_URL=postgresql://user:password@localhost:5432/gainn
 REDIS_URL=redis://localhost:6379
 SECRET_KEY=your-secret-key
 ALGORITHM=HS256
@@ -252,69 +252,11 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 ## 📖 Documentation
 
-- **[Product Requirements](./REQUIREMENTS.md)** - Detailed PRD
-- **[Architecture](./ARCHITECTURE.md)** - System design and architecture
-- **[Project Setup](./PROJECT_SETUP.md)** - Detailed setup instructions
-- **[Quick Start](./QUICKSTART.md)** - 5-minute quick start guide
-- **[Roadmap](./ROADMAP.md)** - Product roadmap
-
----
-
-## 🎯 MVP Scope (Hackathon)
-
-The hackathon MVP demonstrates:
-- ✅ Land analysis simulation
-- ✅ Crop recommendation engine
-- ✅ Yield prediction simulation
-- ✅ Profit comparison system
-- ✅ Market optimization logic
-- ✅ Scenario simulation
-
-**Goal:** Validate core concept and win hackathon! 🏆
-
----
-
-## 📊 Success Metrics
-
-### Hackathon Metrics
-- Working crop recommendation demo
-- Clear profit optimization logic
-- Functional simulation interface
-- Strong presentation
-
-### Future Metrics
-- Prediction accuracy > 80%
-- User adoption: 1,000 farmers in 6 months
-- Profit improvement: >15% for users
-- User retention: >60% monthly
-
----
-
-## 🗺️ Roadmap
-
-### Phase 1: MVP (Hackathon) ✅
-- Basic crop recommendation
-- Yield prediction
-- Profit comparison
-- Demo UI
-
-### Phase 2: Beta (6 months)
-- Real-time weather integration
-- Advanced ML models
-- Mobile application
-- 1,000+ users
-
-### Phase 3: Growth (1 year)
-- IoT sensor integration
-- Satellite imagery
-- Marketplace platform
-- 10,000+ users
-
-### Phase 4: Scale (2+ years)
-- Global network
-- Blockchain integration
-- Fully automated recommendations
-- 100,000+ users
+- **[REQUIREMENTS.md](./REQUIREMENTS.md)** - Product requirements and features
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System architecture and design
+- **[QUICKSTART.md](./QUICKSTART.md)** - Quick setup guide
+- **[DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md)** - Development roadmap
+- **[PRIORITY_GUIDE.md](./PRIORITY_GUIDE.md)** - Issue priorities and workflow
 
 ---
 
@@ -322,55 +264,34 @@ The hackathon MVP demonstrates:
 
 We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
 
-### Development Workflow
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
 ---
 
-## 👥 Team
+## 📝 License
 
-- **Product Owner:** RootAura Team
-- **Tech Lead:** [Your Name]
-- **ML Engineer:** [Name]
-- **Full-Stack Developer:** [Name]
-- **UI/UX Designer:** [Name]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 📄 License
+## 🌟 Acknowledgments
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- Agricultural research institutions for data
-- Open-source community
-- Hackathon organizers
-- Farmers who inspired this project
+- All farmers who inspired this project
+- Open source community for amazing tools
+- Contributors and supporters
 
 ---
 
 ## 📞 Contact
 
-- **Website:** [rootaura.io](https://rootaura.io) (coming soon)
-- **Email:** team@rootaura.io
-- **Twitter:** [@RootAura](https://twitter.com/rootaura)
-- **Discord:** [Join our community](https://discord.gg/rootaura)
+**Project Link:** https://github.com/SamiSahirBaig/ROOTAURA
+
+**Maintainer:** Sami Sahir Baig - samisahirbaig@gmail.com
 
 ---
 
-## 🌟 Star Us!
-
-If you find RootAura useful, please consider giving us a star ⭐ on GitHub!
-
----
-
-**Made with ❤️ for farmers worldwide**
-
-*Transforming agriculture, one prediction at a time* 🌾
+**🌱 GAINN - Empowering farmers with intelligent decisions through neural networks! 🚀**
