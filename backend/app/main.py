@@ -1,40 +1,54 @@
+"""
+Gainn.ai — FastAPI application entry point.
+"""
+
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-import os
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+from app.core.config import settings
+from app.api.v1.api import api_router
 
-# Create FastAPI app
+# ── Logging ──────────────────────────────────────────────
+logging.basicConfig(
+    level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO),
+    format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+
+# ── App ──────────────────────────────────────────────────
 app = FastAPI(
-    title="RootAura API",
-    description="Social AI Agricultural Decision Platform",
-    version="1.0.0",
+    title=settings.PROJECT_NAME,
+    description=settings.PROJECT_DESCRIPTION,
+    version=settings.VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
 )
 
-# CORS Configuration
-origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
-
+# ── CORS ─────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Health check endpoint
+# ── Routers ──────────────────────────────────────────────
+app.include_router(api_router, prefix="/api/v1")
+
+
+# ── Health / Root ────────────────────────────────────────
 @app.get("/")
 async def root():
     return {
-        "message": "Welcome to RootAura API",
-        "version": "1.0.0",
-        "status": "running"
+        "message": f"Welcome to {settings.PROJECT_NAME} API",
+        "version": settings.VERSION,
+        "status": "running",
     }
+
 
 @app.get("/api/v1/health")
 async def health_check():
@@ -42,19 +56,18 @@ async def health_check():
         "success": True,
         "data": {
             "status": "healthy",
-            "version": "1.0.0"
-        }
+            "version": settings.VERSION,
+            "environment": settings.ENVIRONMENT,
+        },
     }
 
-# Include API routers (to be added)
-# from app.api.v1.api import api_router
-# app.include_router(api_router, prefix="/api/v1")
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
         port=8000,
-        reload=True
+        reload=settings.is_development,
     )

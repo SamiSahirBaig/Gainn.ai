@@ -1,0 +1,122 @@
+{
+    "Rice": {
+        "price_per_ton": 18000,
+        "unit": "INR/ton",
+        "volatility": "low",
+        "demand": "high"
+    },
+    "Wheat": {
+        "price_per_ton": 22000,
+        "unit": "INR/ton",
+        "volatility": "low",
+        "demand": "high"
+    },
+    "Maize": {
+        "price_per_ton": 16000,
+        "unit": "INR/ton",
+        "volatility": "medium",
+        "demand": "high"
+    },
+    "Cotton": {
+        "price_per_ton": 55000,
+        "unit": "INR/ton",
+        "volatility": "high",
+        "demand": "medium"
+    },
+    "Sugarcane": {
+        "price_per_ton": 3500,
+        "unit": "INR/ton",
+        "volatility": "low",
+        "demand": "high"
+    },
+    "Potato": {
+        "price_per_ton": 12000,
+        "unit": "INR/ton",
+        "volatility": "high",
+        "demand": "high"
+    },
+    "Tomato": {
+        "price_per_ton": 15000,
+        "unit": "INR/ton",
+        "volatility": "high",
+        "demand": "high"
+    },
+    "Onion": {
+        "price_per_ton": 14000,
+        "unit": "INR/ton",
+        "volatility": "high",
+        "demand": "high"
+    },
+    "Cabbage": {
+        "price_per_ton": 10000,
+        "unit": "INR/ton",
+        "volatility": "medium",
+        "demand": "medium"
+    },
+    "Soybean": {
+        "price_per_ton": 38000,
+        "unit": "INR/ton",
+        "volatility": "medium",
+        "demand": "high"
+    },
+    "Groundnut": {
+        "price_per_ton": 45000,
+        "unit": "INR/ton",
+        "volatility": "medium",
+        "demand": "medium"
+    },
+    "Chickpea": {
+        "price_per_ton": 42000,
+        "unit": "INR/ton",
+        "volatility": "medium",
+        "demand": "high"
+    },
+    "Mango": {
+        "price_per_ton": 30000,
+        "unit": "INR/ton",
+        "volatility": "medium",
+        "demand": "high"
+    },
+    "Banana": {
+        "price_per_ton": 12000,
+        "unit": "INR/ton",
+        "volatility": "low",
+        "demand": "high"
+    },
+    "Orange": {
+        "price_per_ton": 20000,
+        "unit": "INR/ton",
+        "volatility": "medium",
+        "demand": "medium"
+    },
+    "Mustard": {
+        "price_per_ton": 48000,
+        "unit": "INR/ton",
+        "volatility": "medium",
+        "demand": "medium"
+    },
+    "Turmeric": {
+        "price_per_ton": 65000,
+        "unit": "INR/ton",
+        "volatility": "high",
+        "demand": "medium"
+    },
+    "Jute": {
+        "price_per_ton": 40000,
+        "unit": "INR/ton",
+        "volatility": "low",
+        "demand": "low"
+    },
+    "Sunflower": {
+        "price_per_ton": 42000,
+        "unit": "INR/ton",
+        "volatility": "medium",
+        "demand": "medium"
+    },
+    "Lentil": {
+        "price_per_ton": 50000,
+        "unit": "INR/ton",
+        "volatility": "medium",
+        "demand": "high"
+    }
+}
