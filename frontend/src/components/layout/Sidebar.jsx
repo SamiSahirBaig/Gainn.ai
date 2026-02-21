@@ -4,8 +4,9 @@ const menuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/land-analysis', label: 'Land Analysis', icon: '🗺️' },
     { path: '/results', label: 'Results', icon: '📋' },
+    { path: '/simulation', label: 'What-If Simulation', icon: '🎮' },
+    { path: '/market', label: 'Market Intelligence', icon: '📈' },
     { path: '#', label: 'Crop Recommendations', icon: '🌾', disabled: true },
-    { path: '#', label: 'Market Intelligence', icon: '📈', disabled: true },
     { path: '#', label: 'Resource Schedule', icon: '📅', disabled: true },
 ]
 

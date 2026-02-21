@@ -6,28 +6,48 @@ function LocationMarker() {
     const { setValue, watch } = useFormContext()
     const lat = watch('latitude')
     const lng = watch('longitude')
-    const [position, setPosition] = useState(lat && lng ? [lat, lng] : null)
+    const [position, setPosition] = useState(
+        typeof lat === 'number' && !isNaN(lat) && typeof lng === 'number' && !isNaN(lng)
+            ? [lat, lng]
+            : null
+    )
 
     useMapEvents({
         click(e) {
-            const { lat, lng } = e.latlng
-            setPosition([lat, lng])
-            setValue('latitude', parseFloat(lat.toFixed(6)), { shouldValidate: true })
-            setValue('longitude', parseFloat(lng.toFixed(6)), { shouldValidate: true })
+            const { lat: clickLat, lng: clickLng } = e.latlng
+            setPosition([clickLat, clickLng])
+            setValue('latitude', parseFloat(clickLat.toFixed(6)), { shouldValidate: true })
+            setValue('longitude', parseFloat(clickLng.toFixed(6)), { shouldValidate: true })
         },
     })
 
     useEffect(() => {
-        if (lat && lng) setPosition([lat, lng])
+        if (typeof lat === 'number' && !isNaN(lat) && typeof lng === 'number' && !isNaN(lng)) {
+            setPosition([lat, lng])
+        }
     }, [lat, lng])
 
     return position ? <Marker position={position} /> : null
 }
 
 export default function MapSelector() {
-    const { register, watch, formState: { errors } } = useFormContext()
+    const { register, watch, setValue, formState: { errors } } = useFormContext()
     const lat = watch('latitude')
     const lng = watch('longitude')
+
+    const hasValidCoords =
+        typeof lat === 'number' && !isNaN(lat) &&
+        typeof lng === 'number' && !isNaN(lng)
+
+    // Helper to parse number inputs properly and set via setValue
+    const handleNumberChange = (fieldName) => (e) => {
+        const raw = e.target.value
+        if (raw === '' || raw === '-') return
+        const num = parseFloat(raw)
+        if (!isNaN(num)) {
+            setValue(fieldName, num, { shouldValidate: true })
+        }
+    }
 
     return (
         <div className="space-y-5">
@@ -53,11 +73,11 @@ export default function MapSelector() {
             </div>
 
             {/* Coordinates display */}
-            {lat && lng && (
+            {hasValidCoords && (
                 <div className="flex items-center gap-2 p-3 rounded-lg bg-primary-50 text-sm text-primary-700">
                     <span>📌</span>
                     <span className="font-medium">Selected:</span>
-                    <span>{lat}, {lng}</span>
+                    <span>{lat.toFixed(6)}, {lng.toFixed(6)}</span>
                 </div>
             )}
 
@@ -69,10 +89,11 @@ export default function MapSelector() {
                         type="number"
                         step="any"
                         {...register('latitude', { valueAsNumber: true })}
+                        onChange={handleNumberChange('latitude')}
                         className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
                         placeholder="e.g. 20.5937"
                     />
-                    {errors.latitude && <p className="mt-1 text-xs text-red-500">{errors.latitude.message}</p>}
+                    {errors.latitude && <p className="mt-1 text-xs text-red-500">{errors.latitude.message || 'Required'}</p>}
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
@@ -80,10 +101,11 @@ export default function MapSelector() {
                         type="number"
                         step="any"
                         {...register('longitude', { valueAsNumber: true })}
+                        onChange={handleNumberChange('longitude')}
                         className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
                         placeholder="e.g. 78.9629"
                     />
-                    {errors.longitude && <p className="mt-1 text-xs text-red-500">{errors.longitude.message}</p>}
+                    {errors.longitude && <p className="mt-1 text-xs text-red-500">{errors.longitude.message || 'Required'}</p>}
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Land Size (hectares)</label>
@@ -91,20 +113,22 @@ export default function MapSelector() {
                         type="number"
                         step="0.01"
                         {...register('landSize', { valueAsNumber: true })}
+                        onChange={handleNumberChange('landSize')}
                         className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
                         placeholder="e.g. 5.5"
                     />
-                    {errors.landSize && <p className="mt-1 text-xs text-red-500">{errors.landSize.message}</p>}
+                    {errors.landSize && <p className="mt-1 text-xs text-red-500">{errors.landSize.message || 'Required'}</p>}
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Elevation (meters)</label>
                     <input
                         type="number"
                         {...register('elevation', { valueAsNumber: true })}
+                        onChange={handleNumberChange('elevation')}
                         className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
                         placeholder="e.g. 450"
                     />
-                    {errors.elevation && <p className="mt-1 text-xs text-red-500">{errors.elevation.message}</p>}
+                    {errors.elevation && <p className="mt-1 text-xs text-red-500">{errors.elevation.message || 'Required'}</p>}
                 </div>
             </div>
         </div>

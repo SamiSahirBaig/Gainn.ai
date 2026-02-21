@@ -3,6 +3,10 @@ import Layout from '@/components/layout/Layout'
 import Dashboard from '@/pages/Dashboard'
 import LandAnalysis from '@/pages/LandAnalysis'
 import Results from '@/pages/Results'
+import Simulation from '@/pages/Simulation'
+import Market from '@/pages/Market'
+import Login from '@/pages/Login'
+import Register from '@/pages/Register'
 
 function NotFoundPage() {
     return (
@@ -23,12 +27,19 @@ export default function App() {
     return (
         <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            {/* Auth pages — no sidebar/header */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            {/* App pages — with Layout */}
             <Route element={<Layout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/land-analysis" element={<LandAnalysis />} />
                 <Route path="/results" element={<Results />} />
+                <Route path="/simulation" element={<Simulation />} />
+                <Route path="/market" element={<Market />} />
                 <Route path="*" element={<NotFoundPage />} />
             </Route>
         </Routes>
     )
 }
+

@@ -136,6 +136,46 @@ class ProfitCalculator:
             "market_info": market,
         }
 
+    # ── Convenience wrappers (match test API) ─────────────
+
+    def calculate(
+        self,
+        crop_name: str,
+        predicted_yield: float,
+        land_size: float = 1.0,
+    ) -> Dict[str, Any]:
+        """
+        Simplified wrapper returning a flat dict with
+        revenue, total_cost, profit, roi.
+        """
+        full = self.calculate_profit(crop_name, predicted_yield, land_size)
+        return {
+            "crop_name": full["crop_name"],
+            "predicted_yield": full["predicted_yield"],
+            "land_size": full["land_size"],
+            "revenue": full["revenue"],
+            "total_cost": full["costs"]["total_cost"],
+            "profit": full["profit"],
+            "roi": full["roi"],
+        }
+
+    def batch_calculate(
+        self,
+        crops: List[Dict[str, Any]],
+        land_size: float = 1.0,
+    ) -> List[Dict[str, Any]]:
+        """
+        Calculate profit for a list of crops, sorted by profit descending.
+        Each entry: {name, predicted_yield}.
+        """
+        results = []
+        for entry in crops:
+            name = entry.get("name") or entry.get("crop_name", "")
+            yld = entry.get("predicted_yield", 0)
+            results.append(self.calculate(name, yld, land_size))
+        results.sort(key=lambda r: r["profit"], reverse=True)
+        return results
+
     # ── Batch + ranking ──────────────────────────────────
 
     def rank_by_profitability(

@@ -1,10 +1,13 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import MapSelector from './MapSelector'
 import SoilInputs from './SoilInputs'
 import ClimateInputs from './ClimateInputs'
+import landService from '@/services/landService'
+import analysisService from '@/services/analysisService'
 
 const schema = z.object({
     // Step 1 — Location
@@ -27,6 +30,8 @@ const schema = z.object({
     irrigationAvailable: z.boolean().optional(),
 })
 
+const RAINFALL_MAP = { low: 500, moderate: 900, high: 1500, 'very-high': 2200 }
+
 const steps = [
     { id: 0, label: 'Location', icon: '📍', fields: ['latitude', 'longitude', 'landSize', 'elevation'] },
     { id: 1, label: 'Soil', icon: '🧪', fields: ['soilType', 'phLevel', 'organicMatter', 'nitrogen', 'phosphorus', 'potassium'] },
@@ -36,6 +41,9 @@ const steps = [
 export default function LandForm() {
     const [currentStep, setCurrentStep] = useState(0)
     const [submitted, setSubmitted] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
+    const navigate = useNavigate()
 
     const methods = useForm({
         resolver: zodResolver(schema),
@@ -55,9 +63,59 @@ export default function LandForm() {
 
     const handleBack = () => setCurrentStep((s) => Math.max(s - 1, 0))
 
-    const onSubmit = (data) => {
-        console.log('🌾 Land Analysis Submitted:', data)
-        setSubmitted(true)
+    const onSubmit = async (data) => {
+        setLoading(true)
+        setError(null)
+
+        try {
+            // Step 1: Create the land parcel
+            const landPayload = {
+                name: `Land at ${data.latitude.toFixed(3)}, ${data.longitude.toFixed(3)}`,
+                latitude: data.latitude,
+                longitude: data.longitude,
+                size: data.landSize,
+                elevation: data.elevation || null,
+                soil_type: data.soilType,
+                soil_ph: data.phLevel,
+                organic_matter: data.organicMatter || null,
+                nitrogen: data.nitrogen || null,
+                phosphorus: data.phosphorus || null,
+                potassium: data.potassium || null,
+                irrigation_available: data.irrigationAvailable || false,
+            }
+
+            const landRes = await landService.createLand(landPayload)
+            const land = landRes.data?.data || landRes.data
+
+            // Step 2: Create an analysis on the land
+            const analysisPayload = {
+                land_id: land.id,
+                input_data: {
+                    temperature: data.avgTemperature,
+                    rainfall: RAINFALL_MAP[data.rainfallPattern] || 1000,
+                },
+            }
+
+            const analysisRes = await analysisService.createAnalysis(analysisPayload)
+            const analysis = analysisRes.data?.data || analysisRes.data
+
+            // Store latest analysis ID for the Results page
+            localStorage.setItem('gainnai_latest_analysis', JSON.stringify({
+                id: analysis.id,
+                land_id: land.id,
+                created_at: new Date().toISOString(),
+            }))
+
+            setSubmitted(true)
+
+            // Navigate to results after brief delay
+            setTimeout(() => navigate('/results'), 1500)
+        } catch (err) {
+            console.error('Analysis submission failed:', err)
+            setError(err.message || err.detail || 'Failed to submit analysis. Make sure you are logged in.')
+        } finally {
+            setLoading(false)
+        }
     }
 
     if (submitted) {
@@ -68,14 +126,8 @@ export default function LandForm() {
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">Analysis Submitted!</h2>
                 <p className="text-sm text-gray-500 max-w-md mx-auto">
-                    Your land analysis request has been received. Results will appear on your dashboard once processing is complete.
+                    Your land analysis is complete. Redirecting to results…
                 </p>
-                <button
-                    onClick={() => { setSubmitted(false); setCurrentStep(0); methods.reset() }}
-                    className="mt-4 px-6 py-2.5 bg-primary-500 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition-colors shadow-sm shadow-primary-500/20"
-                >
-                    Start New Analysis
-                </button>
             </div>
         )
     }
@@ -83,6 +135,13 @@ export default function LandForm() {
     return (
         <FormProvider {...methods}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {/* Error */}
+                {error && (
+                    <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600">
+                        {error}
+                    </div>
+                )}
+
                 {/* Progress bar */}
                 <div className="flex items-center gap-2">
                     {steps.map((step, i) => (
@@ -91,17 +150,17 @@ export default function LandForm() {
                                 type="button"
                                 onClick={() => i < currentStep && setCurrentStep(i)}
                                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all w-full ${i === currentStep
-                                        ? 'bg-primary-50 text-primary-700 shadow-sm'
-                                        : i < currentStep
-                                            ? 'text-primary-600 hover:bg-primary-50/50 cursor-pointer'
-                                            : 'text-gray-400 cursor-default'
+                                    ? 'bg-primary-50 text-primary-700 shadow-sm'
+                                    : i < currentStep
+                                        ? 'text-primary-600 hover:bg-primary-50/50 cursor-pointer'
+                                        : 'text-gray-400 cursor-default'
                                     }`}
                             >
                                 <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${i === currentStep
-                                        ? 'bg-primary-500 text-white'
-                                        : i < currentStep
-                                            ? 'bg-primary-100 text-primary-600'
-                                            : 'bg-gray-100 text-gray-400'
+                                    ? 'bg-primary-500 text-white'
+                                    : i < currentStep
+                                        ? 'bg-primary-100 text-primary-600'
+                                        : 'bg-gray-100 text-gray-400'
                                     }`}>
                                     {i < currentStep ? '✓' : step.icon}
                                 </span>
@@ -144,9 +203,10 @@ export default function LandForm() {
                     ) : (
                         <button
                             type="submit"
-                            className="px-6 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-primary-500 to-emerald-500 text-white hover:from-primary-600 hover:to-emerald-600 transition-all shadow-md shadow-primary-500/20"
+                            disabled={loading}
+                            className="px-6 py-2.5 rounded-xl text-sm font-medium bg-gradient-to-r from-primary-500 to-emerald-500 text-white hover:from-primary-600 hover:to-emerald-600 transition-all shadow-md shadow-primary-500/20 disabled:opacity-50"
                         >
-                            🔬 Submit Analysis
+                            {loading ? '⏳ Analyzing…' : '🔬 Submit Analysis'}
                         </button>
                     )}
                 </div>
