@@ -24,8 +24,9 @@ export default function NearbyMarkets() {
     const [userLat, setUserLat] = useState(DEFAULT_LAT)
     const [userLng, setUserLng] = useState(DEFAULT_LNG)
 
-    // Try to get land coordinates from localStorage
+    // Try to get land coordinates from localStorage, or fall back to API
     useEffect(() => {
+        // First check localStorage (fast)
         try {
             const stored = localStorage.getItem('gainnai_latest_land')
             if (stored) {
@@ -33,9 +34,33 @@ export default function NearbyMarkets() {
                 if (land.latitude && land.longitude) {
                     setUserLat(land.latitude)
                     setUserLng(land.longitude)
+                    return // got it from localStorage
                 }
             }
         } catch { /* ignore */ }
+
+        // If not in localStorage, fetch user's latest land from API
+        const fetchLatestLand = async () => {
+            try {
+                const res = await import('@/services/api').then(m => m.default.get('/api/v1/lands/?limit=1'))
+                const lands = res.data
+                if (Array.isArray(lands) && lands.length > 0) {
+                    const land = lands[0]
+                    if (land.latitude && land.longitude) {
+                        setUserLat(land.latitude)
+                        setUserLng(land.longitude)
+                        // Cache for next time
+                        localStorage.setItem('gainnai_latest_land', JSON.stringify({
+                            latitude: land.latitude,
+                            longitude: land.longitude,
+                            size: land.size,
+                            name: land.name,
+                        }))
+                    }
+                }
+            } catch { /* ignore — will use default coords */ }
+        }
+        fetchLatestLand()
     }, [])
 
     const fetchMarkets = useCallback(async () => {
@@ -84,8 +109,8 @@ export default function NearbyMarkets() {
                                 key={r}
                                 onClick={() => setRadius(r)}
                                 className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${radius === r
-                                        ? 'bg-white text-primary-700 shadow-sm'
-                                        : 'text-gray-400 hover:text-gray-600'
+                                    ? 'bg-white text-primary-700 shadow-sm'
+                                    : 'text-gray-400 hover:text-gray-600'
                                     }`}
                             >
                                 {r} km

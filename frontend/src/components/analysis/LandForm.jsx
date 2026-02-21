@@ -87,6 +87,15 @@ export default function LandForm() {
             const landRes = await landService.createLand(landPayload)
             const land = landRes.data?.data || landRes.data
 
+            // Store land coordinates IMMEDIATELY so NearbyMarkets + WeatherWidget
+            // use this location even if the analysis step is slow/fails
+            localStorage.setItem('gainnai_latest_land', JSON.stringify({
+                latitude: data.latitude,
+                longitude: data.longitude,
+                size: data.landSize,
+                name: landPayload.name,
+            }))
+
             // Step 2: Create an analysis on the land
             const analysisPayload = {
                 land_id: land.id,
@@ -104,14 +113,6 @@ export default function LandForm() {
                 id: analysis.id,
                 land_id: land.id,
                 created_at: new Date().toISOString(),
-            }))
-
-            // Store land coordinates so NearbyMarkets + WeatherWidget use this location
-            localStorage.setItem('gainnai_latest_land', JSON.stringify({
-                latitude: data.latitude,
-                longitude: data.longitude,
-                size: data.landSize,
-                name: landPayload.name,
             }))
 
             setSubmitted(true)

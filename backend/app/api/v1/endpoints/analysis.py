@@ -82,10 +82,15 @@ def create_analysis(
     # Fetch NDVI satellite features (falls back to synthetic if unavailable)
     ndvi_features = {}
     if land.latitude is not None and land.longitude is not None:
-        ndvi_features = ndvi_service.calculate_ndvi_features(
-            latitude=land.latitude,
-            longitude=land.longitude,
-        )
+        try:
+            ndvi_features = ndvi_service.calculate_ndvi_features(
+                latitude=land.latitude,
+                longitude=land.longitude,
+            )
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning(f"NDVI fetch failed, continuing without: {exc}")
+            ndvi_features = {}
         ml_input.update(ndvi_features)
 
     # Create analysis record — mark processing
