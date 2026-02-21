@@ -129,7 +129,7 @@ def create_analysis(
 
 # ── GET / ────────────────────────────────────────────────
 
-@router.get("/", response_model=list[AnalysisBrief])
+@router.get("/", response_model=list[AnalysisResponse])
 def list_analyses(
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),

@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 import analysisService from '@/services/analysisService'
 
 const FALLBACK = [
-    { id: 1, land: 'Sample Farm 1', date: '2026-02-20', crop: 'Rice', status: 'Completed' },
-    { id: 2, land: 'Sample Farm 2', date: '2026-02-19', crop: 'Wheat', status: 'Completed' },
+    { id: 1, land: 'Sample Farm 1', date: '2026-02-20', crops: ['Rice', 'Wheat', 'Jute'], status: 'completed' },
+    { id: 2, land: 'Sample Farm 2', date: '2026-02-19', crops: ['Turmeric', 'Sugarcane'], status: 'completed' },
 ]
 
 const statusStyles = {
@@ -31,13 +31,31 @@ export default function RecentAnalyses() {
                 const res = await analysisService.listAnalyses({ limit: 5 })
                 const data = res.data?.data || res.data || []
                 if (data.length > 0) {
-                    setAnalyses(data.map(a => ({
-                        id: a.id,
-                        land: a.land_name || a.location || `Analysis #${a.id}`,
-                        date: a.created_at ? new Date(a.created_at).toLocaleDateString() : '—',
-                        crop: a.top_crop || a.recommended_crop || '—',
-                        status: a.status || 'completed',
-                    })))
+                    // Also try to fetch land names
+                    let landMap = {}
+                    try {
+                        const api = (await import('@/services/api')).default
+                        const landRes = await api.get('/api/v1/lands/?limit=20')
+                        const lands = landRes.data || []
+                        lands.forEach(l => { landMap[l.id] = l.name })
+                    } catch { /* ignore */ }
+
+                    setAnalyses(data.map(a => {
+                        // Extract crops from results
+                        const topRecs = a.results?.top_recommendations || []
+                        const bestCrop = a.results?.best_crop
+                        const cropNames = topRecs.length > 0
+                            ? topRecs.slice(0, 3).map(r => r.name)
+                            : bestCrop ? [bestCrop] : []
+
+                        return {
+                            id: a.id,
+                            land: landMap[a.land_id] || `Analysis #${a.id}`,
+                            date: a.created_at ? new Date(a.created_at).toLocaleDateString() : '—',
+                            crops: cropNames,
+                            status: a.status || 'completed',
+                        }
+                    }))
                 }
             } catch (err) {
                 console.warn('Could not fetch recent analyses:', err)
@@ -80,7 +98,15 @@ export default function RecentAnalyses() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 flex-shrink-0">
-                                    <span className="hidden sm:inline text-sm text-gray-600">{item.crop}</span>
+                                    <div className="hidden sm:flex items-center gap-1.5 flex-wrap justify-end">
+                                        {(item.crops || []).length > 0 ? item.crops.map((c, i) => (
+                                            <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-primary-50 text-primary-700">
+                                                {c}
+                                            </span>
+                                        )) : (
+                                            <span className="text-xs text-gray-400">—</span>
+                                        )}
+                                    </div>
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${statusStyles[st] || statusStyles.completed}`}>
                                         {statusLabels[st] || item.status}
                                     </span>
