@@ -5,6 +5,11 @@
         "pesticide": 4000,
         "irrigation": 10000,
         "labor": 8000,
+        "sowing": 2500,
+        "harvesting": 4000,
+        "equipment": 3000,
+        "transport": 2000,
+        "storage": 1500,
         "misc": 2000
     },
     "Wheat": {
@@ -13,6 +18,11 @@
         "pesticide": 3000,
         "irrigation": 5000,
         "labor": 7000,
+        "sowing": 2000,
+        "harvesting": 3500,
+        "equipment": 2500,
+        "transport": 1500,
+        "storage": 1200,
         "misc": 1500
     },
     "Maize": {
@@ -21,6 +31,11 @@
         "pesticide": 3500,
         "irrigation": 6000,
         "labor": 7500,
+        "sowing": 2000,
+        "harvesting": 3000,
+        "equipment": 2500,
+        "transport": 1500,
+        "storage": 1000,
         "misc": 2000
     },
     "Cotton": {
@@ -29,6 +44,11 @@
         "pesticide": 6000,
         "irrigation": 9000,
         "labor": 10000,
+        "sowing": 3000,
+        "harvesting": 5000,
+        "equipment": 4000,
+        "transport": 3000,
+        "storage": 2000,
         "misc": 3500
     },
     "Sugarcane": {
@@ -37,6 +57,11 @@
         "pesticide": 5000,
         "irrigation": 15000,
         "labor": 15000,
+        "sowing": 4000,
+        "harvesting": 8000,
+        "equipment": 6000,
+        "transport": 5000,
+        "storage": 3000,
         "misc": 8000
     },
     "Potato": {
@@ -45,6 +70,11 @@
         "pesticide": 5000,
         "irrigation": 8000,
         "labor": 10000,
+        "sowing": 3000,
+        "harvesting": 5000,
+        "equipment": 3500,
+        "transport": 2500,
+        "storage": 3000,
         "misc": 4000
     },
     "Tomato": {
@@ -53,6 +83,11 @@
         "pesticide": 8000,
         "irrigation": 10000,
         "labor": 12000,
+        "sowing": 3500,
+        "harvesting": 6000,
+        "equipment": 3000,
+        "transport": 3000,
+        "storage": 2000,
         "misc": 3000
     },
     "Onion": {
@@ -61,6 +96,11 @@
         "pesticide": 4000,
         "irrigation": 6000,
         "labor": 10000,
+        "sowing": 3000,
+        "harvesting": 5000,
+        "equipment": 2500,
+        "transport": 2000,
+        "storage": 3000,
         "misc": 4000
     },
     "Cabbage": {
@@ -69,6 +109,11 @@
         "pesticide": 3000,
         "irrigation": 5000,
         "labor": 9000,
+        "sowing": 2500,
+        "harvesting": 4000,
+        "equipment": 2000,
+        "transport": 2000,
+        "storage": 1500,
         "misc": 4000
     },
     "Soybean": {
@@ -77,6 +122,11 @@
         "pesticide": 3000,
         "irrigation": 4000,
         "labor": 7000,
+        "sowing": 2000,
+        "harvesting": 3000,
+        "equipment": 2000,
+        "transport": 1500,
+        "storage": 1000,
         "misc": 3000
     },
     "Groundnut": {
@@ -85,6 +135,11 @@
         "pesticide": 3000,
         "irrigation": 5000,
         "labor": 8000,
+        "sowing": 2500,
+        "harvesting": 3500,
+        "equipment": 2500,
+        "transport": 1500,
+        "storage": 1500,
         "misc": 3000
     },
     "Chickpea": {
@@ -93,6 +148,11 @@
         "pesticide": 2000,
         "irrigation": 3000,
         "labor": 6000,
+        "sowing": 1500,
+        "harvesting": 2500,
+        "equipment": 1500,
+        "transport": 1200,
+        "storage": 1000,
         "misc": 2500
     },
     "Mango": {
@@ -101,6 +161,11 @@
         "pesticide": 4000,
         "irrigation": 8000,
         "labor": 8000,
+        "sowing": 2000,
+        "harvesting": 5000,
+        "equipment": 3000,
+        "transport": 3000,
+        "storage": 2000,
         "misc": 3000
     },
     "Banana": {
@@ -109,6 +174,11 @@
         "pesticide": 5000,
         "irrigation": 12000,
         "labor": 12000,
+        "sowing": 4000,
+        "harvesting": 6000,
+        "equipment": 4000,
+        "transport": 4000,
+        "storage": 3000,
         "misc": 6000
     },
     "Orange": {
@@ -117,6 +187,11 @@
         "pesticide": 5000,
         "irrigation": 8000,
         "labor": 9000,
+        "sowing": 2500,
+        "harvesting": 5000,
+        "equipment": 3000,
+        "transport": 3000,
+        "storage": 2500,
         "misc": 4000
     },
     "Mustard": {
@@ -125,6 +200,11 @@
         "pesticide": 2000,
         "irrigation": 3000,
         "labor": 5000,
+        "sowing": 1500,
+        "harvesting": 2000,
+        "equipment": 1500,
+        "transport": 1000,
+        "storage": 800,
         "misc": 2500
     },
     "Turmeric": {
@@ -133,6 +213,11 @@
         "pesticide": 4000,
         "irrigation": 10000,
         "labor": 10000,
+        "sowing": 3000,
+        "harvesting": 5000,
+        "equipment": 3500,
+        "transport": 2500,
+        "storage": 2000,
         "misc": 5000
     },
     "Jute": {
@@ -141,6 +226,11 @@
         "pesticide": 2000,
         "irrigation": 3000,
         "labor": 8000,
+        "sowing": 2000,
+        "harvesting": 3000,
+        "equipment": 2000,
+        "transport": 1500,
+        "storage": 1000,
         "misc": 3000
     },
     "Sunflower": {
@@ -149,6 +239,11 @@
         "pesticide": 3000,
         "irrigation": 5000,
         "labor": 6000,
+        "sowing": 2000,
+        "harvesting": 2500,
+        "equipment": 2000,
+        "transport": 1500,
+        "storage": 1000,
         "misc": 3500
     },
     "Lentil": {
@@ -157,6 +252,11 @@
         "pesticide": 1500,
         "irrigation": 2500,
         "labor": 5500,
+        "sowing": 1500,
+        "harvesting": 2000,
+        "equipment": 1500,
+        "transport": 1000,
+        "storage": 800,
         "misc": 3000
     }
 }

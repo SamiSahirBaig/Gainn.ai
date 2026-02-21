@@ -2,6 +2,15 @@
     {
         "name": "Rice",
         "category": "cereal",
+        "season_name": "Kharif",
+        "sowing_months": [
+            "Jun",
+            "Jul"
+        ],
+        "harvest_months": [
+            "Oct",
+            "Nov"
+        ],
         "soil_types": [
             "clay",
             "loamy",
@@ -26,6 +35,15 @@
     {
         "name": "Wheat",
         "category": "cereal",
+        "season_name": "Rabi",
+        "sowing_months": [
+            "Nov",
+            "Dec"
+        ],
+        "harvest_months": [
+            "Mar",
+            "Apr"
+        ],
         "soil_types": [
             "loamy",
             "clay loam",
@@ -50,6 +68,17 @@
     {
         "name": "Maize",
         "category": "cereal",
+        "season_name": "Kharif / Rabi",
+        "sowing_months": [
+            "Jun",
+            "Jul",
+            "Oct"
+        ],
+        "harvest_months": [
+            "Sep",
+            "Oct",
+            "Feb"
+        ],
         "soil_types": [
             "loamy",
             "sandy loam",
@@ -74,6 +103,16 @@
     {
         "name": "Cotton",
         "category": "fiber",
+        "season_name": "Kharif",
+        "sowing_months": [
+            "Apr",
+            "May"
+        ],
+        "harvest_months": [
+            "Oct",
+            "Nov",
+            "Dec"
+        ],
         "soil_types": [
             "black",
             "clay",
@@ -98,6 +137,18 @@
     {
         "name": "Sugarcane",
         "category": "cash crop",
+        "season_name": "Year-round",
+        "sowing_months": [
+            "Feb",
+            "Mar",
+            "Oct"
+        ],
+        "harvest_months": [
+            "Dec",
+            "Jan",
+            "Feb",
+            "Mar"
+        ],
         "soil_types": [
             "loamy",
             "clay loam",
@@ -122,6 +173,16 @@
     {
         "name": "Potato",
         "category": "vegetable",
+        "season_name": "Rabi",
+        "sowing_months": [
+            "Oct",
+            "Nov"
+        ],
+        "harvest_months": [
+            "Jan",
+            "Feb",
+            "Mar"
+        ],
         "soil_types": [
             "sandy loam",
             "loamy",
@@ -146,6 +207,19 @@
     {
         "name": "Tomato",
         "category": "vegetable",
+        "season_name": "Rabi / Kharif",
+        "sowing_months": [
+            "Jun",
+            "Jul",
+            "Sep",
+            "Oct"
+        ],
+        "harvest_months": [
+            "Sep",
+            "Oct",
+            "Jan",
+            "Feb"
+        ],
         "soil_types": [
             "loamy",
             "sandy loam",
@@ -170,6 +244,17 @@
     {
         "name": "Onion",
         "category": "vegetable",
+        "season_name": "Rabi / Kharif",
+        "sowing_months": [
+            "Oct",
+            "Nov",
+            "Jun"
+        ],
+        "harvest_months": [
+            "Feb",
+            "Mar",
+            "Sep"
+        ],
         "soil_types": [
             "loamy",
             "sandy loam",
@@ -194,6 +279,16 @@
     {
         "name": "Cabbage",
         "category": "vegetable",
+        "season_name": "Rabi",
+        "sowing_months": [
+            "Sep",
+            "Oct"
+        ],
+        "harvest_months": [
+            "Dec",
+            "Jan",
+            "Feb"
+        ],
         "soil_types": [
             "loamy",
             "clay loam",
@@ -218,6 +313,15 @@
     {
         "name": "Soybean",
         "category": "pulse",
+        "season_name": "Kharif",
+        "sowing_months": [
+            "Jun",
+            "Jul"
+        ],
+        "harvest_months": [
+            "Oct",
+            "Nov"
+        ],
         "soil_types": [
             "loamy",
             "clay loam",
@@ -242,6 +346,15 @@
     {
         "name": "Groundnut",
         "category": "oilseed",
+        "season_name": "Kharif",
+        "sowing_months": [
+            "Jun",
+            "Jul"
+        ],
+        "harvest_months": [
+            "Oct",
+            "Nov"
+        ],
         "soil_types": [
             "sandy loam",
             "red",
@@ -266,6 +379,15 @@
     {
         "name": "Chickpea",
         "category": "pulse",
+        "season_name": "Rabi",
+        "sowing_months": [
+            "Oct",
+            "Nov"
+        ],
+        "harvest_months": [
+            "Feb",
+            "Mar"
+        ],
         "soil_types": [
             "loamy",
             "sandy loam",
@@ -290,6 +412,16 @@
     {
         "name": "Mango",
         "category": "fruit",
+        "season_name": "Year-round (harvest: summer)",
+        "sowing_months": [
+            "Jul",
+            "Aug"
+        ],
+        "harvest_months": [
+            "Apr",
+            "May",
+            "Jun"
+        ],
         "soil_types": [
             "loamy",
             "sandy loam",
@@ -314,6 +446,19 @@
     {
         "name": "Banana",
         "category": "fruit",
+        "season_name": "Year-round",
+        "sowing_months": [
+            "Feb",
+            "Mar",
+            "Jun",
+            "Jul"
+        ],
+        "harvest_months": [
+            "Dec",
+            "Jan",
+            "May",
+            "Jun"
+        ],
         "soil_types": [
             "loamy",
             "clay loam",
@@ -338,6 +483,16 @@
     {
         "name": "Orange",
         "category": "fruit",
+        "season_name": "Year-round (harvest: winter)",
+        "sowing_months": [
+            "Jul",
+            "Aug"
+        ],
+        "harvest_months": [
+            "Nov",
+            "Dec",
+            "Jan"
+        ],
         "soil_types": [
             "sandy loam",
             "loamy",
@@ -362,6 +517,15 @@
     {
         "name": "Mustard",
         "category": "oilseed",
+        "season_name": "Rabi",
+        "sowing_months": [
+            "Oct",
+            "Nov"
+        ],
+        "harvest_months": [
+            "Feb",
+            "Mar"
+        ],
         "soil_types": [
             "loamy",
             "sandy loam",
@@ -386,6 +550,16 @@
     {
         "name": "Turmeric",
         "category": "spice",
+        "season_name": "Kharif",
+        "sowing_months": [
+            "May",
+            "Jun"
+        ],
+        "harvest_months": [
+            "Jan",
+            "Feb",
+            "Mar"
+        ],
         "soil_types": [
             "loamy",
             "clay loam",
@@ -410,6 +584,15 @@
     {
         "name": "Jute",
         "category": "fiber",
+        "season_name": "Kharif",
+        "sowing_months": [
+            "Mar",
+            "Apr"
+        ],
+        "harvest_months": [
+            "Jul",
+            "Aug"
+        ],
         "soil_types": [
             "loamy",
             "alluvial",
@@ -434,6 +617,17 @@
     {
         "name": "Sunflower",
         "category": "oilseed",
+        "season_name": "Kharif / Rabi",
+        "sowing_months": [
+            "Jun",
+            "Jul",
+            "Jan"
+        ],
+        "harvest_months": [
+            "Sep",
+            "Oct",
+            "Apr"
+        ],
         "soil_types": [
             "loamy",
             "sandy loam",
@@ -458,6 +652,15 @@
     {
         "name": "Lentil",
         "category": "pulse",
+        "season_name": "Rabi",
+        "sowing_months": [
+            "Oct",
+            "Nov"
+        ],
+        "harvest_months": [
+            "Feb",
+            "Mar"
+        ],
         "soil_types": [
             "loamy",
             "sandy loam",

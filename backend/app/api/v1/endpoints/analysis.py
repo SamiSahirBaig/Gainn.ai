@@ -163,9 +163,11 @@ def get_recommendations(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Return top-5 crop recommendations from a completed analysis,
-    sorted by suitability score descending.
+    Return top-5 crop recommendations with enriched data:
+    cost breakdown, market info, season, and profit analysis.
     """
+    from app.ml.profit_calculator import profit_calculator
+
     analysis = _get_user_analysis(analysis_id, current_user, db)
 
     if analysis.status != "completed":
@@ -175,12 +177,189 @@ def get_recommendations(
         )
 
     results = analysis.results or {}
+    raw_recs = results.get("top_recommendations", [])
+
+    # Get land size for cost scaling
+    land = db.query(Land).filter(Land.id == analysis.land_id).first()
+    land_size = land.size if land and land.size else 1.0
+
+    # Load crop requirements for season data
+    import json
+    from pathlib import Path
+    crop_db_path = Path(__file__).resolve().parent.parent.parent.parent / "ml" / "data" / "crop_requirements.json"
+    with open(crop_db_path) as f:
+        crop_db = {c["name"]: c for c in json.load(f)}
+
+    enriched = []
+    for rec in raw_recs:
+        crop_name = rec.get("name", "")
+        predicted_yield = rec.get("predicted_yield", 0)
+
+        # Get detailed profit breakdown
+        profit_data = profit_calculator.calculate_profit(
+            crop_name, predicted_yield, land_size
+        )
+
+        # Get season data from crop_requirements
+        crop_info = crop_db.get(crop_name, {})
+
+        enriched.append({
+            **rec,
+            # Profit & cost data
+            "revenue": profit_data.get("revenue", 0),
+            "total_cost": profit_data.get("costs", {}).get("total_cost", 0),
+            "profit": profit_data.get("profit", 0),
+            "roi": profit_data.get("roi", 0),
+            "profit_per_hectare": profit_data.get("profit_per_hectare", 0),
+            "cost_breakdown": profit_data.get("costs", {}).get("per_hectare", {}),
+            # Market data
+            "market_info": profit_data.get("market_info", {}),
+            # Season data
+            "season_name": crop_info.get("season_name", "—"),
+            "sowing_months": crop_info.get("sowing_months", []),
+            "harvest_months": crop_info.get("harvest_months", []),
+            # Growing requirements
+            "growth_duration": crop_info.get("growth_duration", rec.get("growth_duration")),
+            "temp_range": f"{crop_info.get('temp_min', '?')}–{crop_info.get('temp_max', '?')} °C" if crop_info else None,
+            "rainfall_range": f"{crop_info.get('rainfall_min', '?')}–{crop_info.get('rainfall_max', '?')} mm" if crop_info else None,
+            "irrigation_required": crop_info.get("irrigation_required"),
+            "soil_types": crop_info.get("soil_types", []),
+            "land_size": land_size,
+        })
+
     return {
         "analysis_id": analysis.id,
         "land_id": analysis.land_id,
-        "recommendations": results.get("top_recommendations", []),
+        "land_size": land_size,
+        "recommendations": enriched,
         "ndvi_data": results.get("ndvi_data"),
     }
+
+
+# ── GET /{analysis_id}/crop/{crop_name}/detail ──────────
+
+@router.get("/{analysis_id}/crop/{crop_name}/detail")
+def get_crop_detail(
+    analysis_id: int,
+    crop_name: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Deep-dive analysis for a single crop — full cost breakdown,
+    market info, growing requirements, and yield confidence interval.
+    """
+    from app.ml.profit_calculator import profit_calculator
+    from app.ml.yield_prediction import yield_predictor
+
+    analysis = _get_user_analysis(analysis_id, current_user, db)
+
+    if analysis.status != "completed":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Analysis is not completed (status: {analysis.status})",
+        )
+
+    # Find this crop in the analysis results
+    results = analysis.results or {}
+    all_scores = results.get("all_scores", [])
+    crop_score = next((c for c in all_scores if c["name"] == crop_name), None)
+    if not crop_score:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Crop '{crop_name}' not found in analysis results",
+        )
+
+    # Get land size
+    land = db.query(Land).filter(Land.id == analysis.land_id).first()
+    land_size = land.size if land and land.size else 1.0
+
+    # Detailed profit breakdown
+    predicted_yield = crop_score.get("predicted_yield", 0)
+    profit_data = profit_calculator.calculate_profit(
+        crop_name, predicted_yield, land_size
+    )
+
+    # Yield prediction with confidence interval
+    input_data = analysis.input_data or {}
+    try:
+        yield_data = yield_predictor.predict(input_data, crop_name)
+    except Exception:
+        yield_data = {
+            "predicted_yield": predicted_yield,
+            "min_yield": round(predicted_yield * 0.7, 2),
+            "max_yield": round(predicted_yield * 1.3, 2),
+            "confidence": crop_score.get("confidence", 0.5),
+        }
+
+    # Load crop requirements for growing guide
+    import json
+    from pathlib import Path
+    crop_db_path = Path(__file__).resolve().parent.parent.parent.parent / "ml" / "data" / "crop_requirements.json"
+    with open(crop_db_path) as f:
+        crop_db = {c["name"]: c for c in json.load(f)}
+    crop_info = crop_db.get(crop_name, {})
+
+    # Group costs by phase
+    cost_per_ha = profit_data.get("costs", {}).get("per_hectare", {})
+    cost_phases = {
+        "pre_sowing": {
+            "seeds": cost_per_ha.get("seeds", 0),
+            "sowing": cost_per_ha.get("sowing", 0),
+        },
+        "growing": {
+            "fertilizer": cost_per_ha.get("fertilizer", 0),
+            "pesticide": cost_per_ha.get("pesticide", 0),
+            "irrigation": cost_per_ha.get("irrigation", 0),
+            "labor": cost_per_ha.get("labor", 0),
+            "equipment": cost_per_ha.get("equipment", 0),
+        },
+        "harvest": {
+            "harvesting": cost_per_ha.get("harvesting", 0),
+        },
+        "post_harvest": {
+            "transport": cost_per_ha.get("transport", 0),
+            "storage": cost_per_ha.get("storage", 0),
+            "misc": cost_per_ha.get("misc", 0),
+        },
+    }
+
+    return {
+        "analysis_id": analysis.id,
+        "land_id": analysis.land_id,
+        "land_size": land_size,
+        "crop_name": crop_name,
+        "suitability": crop_score,
+        "profit": {
+            "revenue": profit_data.get("revenue", 0),
+            "total_cost": profit_data.get("costs", {}).get("total_cost", 0),
+            "profit": profit_data.get("profit", 0),
+            "roi": profit_data.get("roi", 0),
+            "profit_per_hectare": profit_data.get("profit_per_hectare", 0),
+        },
+        "cost_breakdown": cost_per_ha,
+        "cost_phases": cost_phases,
+        "market_info": profit_data.get("market_info", {}),
+        "yield_prediction": yield_data,
+        "growing_guide": {
+            "season_name": crop_info.get("season_name", "—"),
+            "sowing_months": crop_info.get("sowing_months", []),
+            "harvest_months": crop_info.get("harvest_months", []),
+            "growth_duration": crop_info.get("growth_duration"),
+            "temp_range": [crop_info.get("temp_min"), crop_info.get("temp_max")],
+            "rainfall_range": [crop_info.get("rainfall_min"), crop_info.get("rainfall_max")],
+            "water_requirement": crop_info.get("water_requirement"),
+            "irrigation_required": crop_info.get("irrigation_required"),
+            "soil_types": crop_info.get("soil_types", []),
+            "ph_range": [crop_info.get("ph_min"), crop_info.get("ph_max")],
+            "npk_required": {
+                "nitrogen": crop_info.get("nitrogen"),
+                "phosphorus": crop_info.get("phosphorus"),
+                "potassium": crop_info.get("potassium"),
+            },
+        },
+    }
+
 
 
 # ── GET /{analysis_id}/ndvi ─────────────────────────────

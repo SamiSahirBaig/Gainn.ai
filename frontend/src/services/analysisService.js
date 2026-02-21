@@ -20,6 +20,10 @@ const analysisService = {
     /** Run a what-if simulation on an existing analysis */
     simulate: (analysisId, scenario) =>
         api.post(`/api/v1/analyses/${analysisId}/simulate`, scenario),
+
+    /** Get detailed analysis for a specific crop */
+    getCropDetail: (analysisId, cropName) =>
+        api.get(`/api/v1/analyses/${analysisId}/crop/${encodeURIComponent(cropName)}/detail`),
 }
 
 export default analysisService

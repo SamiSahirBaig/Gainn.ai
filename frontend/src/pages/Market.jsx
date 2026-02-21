@@ -1,106 +1,104 @@
-import { useState } from 'react'
-import PriceChart from '@/components/market/PriceChart'
-import DemandIndicator from '@/components/market/DemandIndicator'
-import OpportunityCard from '@/components/market/OpportunityCard'
-import PriceComparison from '@/components/market/PriceComparison'
+import { useState, useEffect } from 'react'
+import marketService from '@/services/marketService'
+import TopRecommendedCrops from '@/components/market/TopRecommendedCrops'
+import HighDemandCrops from '@/components/market/HighDemandCrops'
+import LowDemandCrops from '@/components/market/LowDemandCrops'
+import BestPriceCrops from '@/components/market/BestPriceCrops'
+import BestMarkets from '@/components/market/BestMarkets'
 
-const CROPS_DATA = [
-    { name: 'Rice', price: 18000, demand: 'high', season: 'Kharif', volatility: 0.015 },
-    { name: 'Wheat', price: 22000, demand: 'high', season: 'Rabi', volatility: 0.012 },
-    { name: 'Cotton', price: 55000, demand: 'medium', season: 'Kharif', volatility: 0.04 },
-    { name: 'Sugarcane', price: 3500, demand: 'high', season: 'Annual', volatility: 0.008 },
-    { name: 'Soybean', price: 38000, demand: 'high', season: 'Kharif', volatility: 0.025 },
-    { name: 'Turmeric', price: 65000, demand: 'medium', season: 'Kharif', volatility: 0.05 },
-    { name: 'Mustard', price: 48000, demand: 'medium', season: 'Rabi', volatility: 0.03 },
-    { name: 'Potato', price: 12000, demand: 'high', season: 'Rabi', volatility: 0.06 },
-    { name: 'Tomato', price: 15000, demand: 'high', season: 'All', volatility: 0.08 },
-    { name: 'Lentil', price: 50000, demand: 'high', season: 'Rabi', volatility: 0.02 },
-]
-
-const OPPORTUNITIES = [
-    { crop: 'Turmeric', reason: 'Prices surging 12% this month due to export demand. Current price near 6-month high.', profit: 45000, urgency: 'high' },
-    { crop: 'Mustard', reason: 'Rabi season peak approaching. Demand expected to rise 20% in next 2 weeks.', profit: 32000, urgency: 'high' },
-    { crop: 'Soybean', reason: 'Stable high demand with limited supply. Good margins for well-irrigated land.', profit: 28000, urgency: 'medium' },
-    { crop: 'Cotton', reason: 'Textile sector recovery driving demand. Monitor for price corrections.', profit: 35000, urgency: 'medium' },
-    { crop: 'Potato', reason: 'High volatility — prices could spike in cold storage season. Hold and sell later.', profit: 18000, urgency: 'low' },
-]
+// Fallback data
+const FALLBACK = {
+    top_recommended: [
+        { name: 'Wheat', icon: '🌿', price: 2400, profit_per_acre: 30000, opportunity_score: 88, demand: 'high', trend: 'up', trend_label: 'Rising', reasons: ['Prices are rising', 'High market demand', 'Best season to grow (Rabi)'] },
+        { name: 'Onion', icon: '🧅', price: 1400, profit_per_acre: 40000, opportunity_score: 85, demand: 'high', trend: 'up', trend_label: 'Rising', reasons: ['Prices are rising', 'High market demand'] },
+        { name: 'Mustard', icon: '🌻', price: 4800, profit_per_acre: 26000, opportunity_score: 82, demand: 'high', trend: 'up', trend_label: 'Rising', reasons: ['Good profit potential', 'High market demand'] },
+        { name: 'Tomato', icon: '🍅', price: 1500, profit_per_acre: 45000, opportunity_score: 79, demand: 'high', trend: 'stable', trend_label: 'Stable', reasons: ['High market demand', 'Good profit potential'] },
+        { name: 'Lentil', icon: '🫘', price: 4500, profit_per_acre: 24000, opportunity_score: 76, demand: 'high', trend: 'stable', trend_label: 'Stable', reasons: ['High market demand', 'Best season to grow (Rabi)'] },
+    ],
+    high_demand: [
+        { name: 'Rice', icon: '🌾', price: 2100, demand: 'high', trend: 'up', trend_label: 'Rising', tag: '🔥 Hot', tip: 'Rice — sell now for best prices!' },
+        { name: 'Wheat', icon: '🌿', price: 2400, demand: 'high', trend: 'up', trend_label: 'Rising', tag: '🔥 Hot', tip: 'Wheat — sell now for best prices!' },
+        { name: 'Onion', icon: '🧅', price: 1400, demand: 'high', trend: 'up', trend_label: 'Rising', tag: '🔥 Hot', tip: 'Onion — sell now for best prices!' },
+    ],
+    low_demand: [
+        { name: 'Cotton', icon: '🏵️', price: 5600, trend: 'down', trend_label: 'Falling', tag: '⚠️ Oversupply', reason: 'Prices falling — wait before selling' },
+        { name: 'Cabbage', icon: '🥬', price: 1000, trend: 'down', trend_label: 'Falling', tag: '❄️ Low Demand', reason: 'Low demand — consider alternative crops' },
+    ],
+    best_prices: [
+        { name: 'Turmeric', icon: '🟡', price: 8500, change_pct: 6.1, trend: 'up', tip: 'Price at peak — sell now!' },
+        { name: 'Cotton', icon: '🏵️', price: 5600, change_pct: -2.1, trend: 'down', tip: 'Stable price' },
+        { name: 'Mustard', icon: '🌻', price: 4800, change_pct: 2.8, trend: 'up', tip: 'Good price — consider selling' },
+    ],
+    best_markets: [],
+    season: 'Rabi',
+}
 
 export default function Market() {
-    const [selectedCrop, setSelectedCrop] = useState(CROPS_DATA[0])
+    const [data, setData] = useState(FALLBACK)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        async function fetchIntelligence() {
+            try {
+                let lat = 20.0, lng = 78.0
+                try {
+                    const stored = localStorage.getItem('gainnai_latest_land')
+                    if (stored) {
+                        const land = JSON.parse(stored)
+                        if (land.latitude) lat = land.latitude
+                        if (land.longitude) lng = land.longitude
+                    }
+                } catch { /* ignore */ }
+
+                const res = await marketService.getIntelligence(lat, lng)
+                if (res.data) setData(res.data)
+            } catch (err) {
+                console.warn('Intelligence fetch failed, using fallback:', err)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchIntelligence()
+    }, [])
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-5">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Market Intelligence</h1>
-                <p className="text-sm text-gray-500 mt-1">Current prices, demand trends, and selling opportunities.</p>
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">📊 Market Intelligence</h1>
+                <p className="text-sm text-gray-500 mt-1">
+                    What to grow, what to sell, and where to sell — simple answers for smart farming
+                </p>
+                {data.season && (
+                    <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full">
+                        🌱 Current Season: {data.season}
+                    </span>
+                )}
             </div>
 
-            {/* Summary stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {[
-                    { label: 'Crops Tracked', value: CROPS_DATA.length, icon: '🌾' },
-                    { label: 'High Demand', value: CROPS_DATA.filter(c => c.demand === 'high').length, icon: '🔥' },
-                    { label: 'Best Price', value: `₹${(Math.max(...CROPS_DATA.map(c => c.price)) / 1000).toFixed(0)}k`, icon: '💰' },
-                    { label: 'Opportunities', value: OPPORTUNITIES.filter(o => o.urgency === 'high').length, icon: '🎯' },
-                ].map(s => (
-                    <div key={s.label} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-center">
-                        <span className="text-2xl">{s.icon}</span>
-                        <p className="text-xl font-bold text-gray-900 mt-1">{s.value}</p>
-                        <p className="text-[10px] text-gray-400 uppercase mt-0.5">{s.label}</p>
+            {/* Loading */}
+            {loading ? (
+                <div className="flex items-center justify-center py-12">
+                    <div className="w-8 h-8 rounded-full border-3 border-primary-200 border-t-primary-500 animate-spin" />
+                </div>
+            ) : (
+                <>
+                    {/* Section 1: Top 5 */}
+                    <TopRecommendedCrops crops={data.top_recommended || []} />
+
+                    {/* Sections 2+3: High + Low Demand */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <HighDemandCrops crops={data.high_demand || []} />
+                        <LowDemandCrops crops={data.low_demand || []} />
                     </div>
-                ))}
-            </div>
 
-            {/* Crop selector + price chart */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div className="lg:col-span-2">
-                    <PriceChart cropName={selectedCrop.name} basePrice={selectedCrop.price} volatility={selectedCrop.volatility} />
-                </div>
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                    <h3 className="font-semibold text-gray-900 mb-3">Select Crop</h3>
-                    <div className="space-y-1.5 max-h-72 overflow-y-auto">
-                        {CROPS_DATA.map(c => (
-                            <button
-                                key={c.name}
-                                onClick={() => setSelectedCrop(c)}
-                                className={`w-full text-left px-3 py-2.5 rounded-xl text-sm transition-all ${selectedCrop.name === c.name
-                                        ? 'bg-primary-50 text-primary-700 font-semibold shadow-sm'
-                                        : 'hover:bg-gray-50 text-gray-700'
-                                    }`}
-                            >
-                                <span className="flex justify-between">
-                                    <span>{c.name}</span>
-                                    <span className="tabular-nums text-gray-400">₹{(c.price / 1000).toFixed(0)}k</span>
-                                </span>
-                            </button>
-                        ))}
+                    {/* Sections 4+5: Best Prices + Best Markets */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <BestPriceCrops crops={data.best_prices || []} />
+                        <BestMarkets markets={data.best_markets || []} />
                     </div>
-                </div>
-            </div>
-
-            {/* Demand grid */}
-            <div>
-                <h2 className="text-lg font-bold text-gray-900 mb-3">Demand Levels</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
-                    {CROPS_DATA.slice(0, 5).map(c => (
-                        <DemandIndicator key={c.name} cropName={c.name} demand={c.demand} season={c.season} />
-                    ))}
-                </div>
-            </div>
-
-            {/* Opportunities + comparison side by side */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <div>
-                    <h2 className="text-lg font-bold text-gray-900 mb-3">🎯 Market Opportunities</h2>
-                    <div className="space-y-3">
-                        {OPPORTUNITIES.map(o => (
-                            <OpportunityCard key={o.crop} {...o} />
-                        ))}
-                    </div>
-                </div>
-                <PriceComparison crops={CROPS_DATA} />
-            </div>
+                </>
+            )}
         </div>
     )
 }

@@ -28,13 +28,39 @@ app = FastAPI(
 )
 
 # ── CORS ─────────────────────────────────────────────────
+# Note: credentials=True is incompatible with origins=["*"] per CORS spec.
+# In dev mode we use explicit origins so both features work.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000",
+    ] if settings.is_development else settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ── Catch-all exception handler (ensures CORS headers on 500 errors) ─
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Catch unhandled exceptions and return JSON with CORS headers."""
+    logger.error(f"Unhandled error: {exc}", exc_info=True)
+    origin = request.headers.get("origin", "")
+    response = JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal server error: {str(exc)}"},
+    )
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+    return response
 
 # ── Routers ──────────────────────────────────────────────
 app.include_router(api_router, prefix="/api/v1")

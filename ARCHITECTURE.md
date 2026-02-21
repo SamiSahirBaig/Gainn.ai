@@ -1,8 +1,10 @@
 # Gainn.ai - System Architecture
 
-**Version:** 1.0  
-**Last Updated:** February 2026  
-**Status:** MVP Design Phase
+**Version:** 1.1  
+**Last Updated:** February 22, 2026  
+**Status:** MVP Complete — Hackathon Ready
+
+> **Recent additions (Issues #28–#34):** Weather Service (OpenWeatherMap), Market Data Service (AGMARKNET), Market Intelligence Engine (demand scoring + seasonal analysis), 60 APMC market locations, ErrorBoundary, Farmer-Friendly UI redesign. What-If Simulation removed from frontend (backend preserved).
 
 ---
 

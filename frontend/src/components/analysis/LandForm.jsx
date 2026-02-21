@@ -106,6 +106,14 @@ export default function LandForm() {
                 created_at: new Date().toISOString(),
             }))
 
+            // Store land coordinates so NearbyMarkets + WeatherWidget use this location
+            localStorage.setItem('gainnai_latest_land', JSON.stringify({
+                latitude: data.latitude,
+                longitude: data.longitude,
+                size: data.landSize,
+                name: landPayload.name,
+            }))
+
             setSubmitted(true)
 
             // Navigate to results after brief delay

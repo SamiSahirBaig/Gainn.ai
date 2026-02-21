@@ -39,48 +39,41 @@ GAINN provides:
 ## 🚀 Key Features
 
 ### 1. 🌍 Land Suitability Analysis
-Analyzes land characteristics to determine crop compatibility
-- Soil type, pH, nutrient analysis
-- Topography and elevation
-- Climate suitability scoring
+- Interactive map-based land selection (draw polygon or click)
+- Auto-fetch soil, elevation, and climate data from global APIs
+- NDVI satellite vegetation analysis (Sentinel Hub)
+- Multi-step wizard: Location → Soil → Climate → Analyze
 
-### 2. 📊 Yield Prediction Engine
-ML-powered yield forecasting for different crops
-- Historical data analysis
-- Environmental factor integration
-- Confidence intervals and risk assessment
+### 2. 📊 ML-Powered Crop Recommendations
+- Top 5 crop recommendations ranked by suitability score
+- XGBoost yield prediction with confidence intervals
+- Profit calculation with cost breakdown and ROI
+- Star ratings, "why this crop" checklists — farmer-friendly
 
-### 3. 💰 Profit Optimization Engine
-Calculates expected profitability for each crop
-- Market price prediction
-- Input cost analysis
-- ROI comparison across crops
+### 3. 🌤️ Live Weather Intelligence
+- Real-time weather from OpenWeatherMap API
+- 5-day forecast with farming activity recommendations
+- Irrigation alerts, heat wave warnings, best farming days
+- Auto-refresh every 15 minutes
 
-### 4. 🤝 Social Intelligence Layer (Network Effect)
-**Our most powerful differentiator**
-- Analyzes collective farmer activity
-- Detects oversupply risks early
-- Recommends alternative crops
-- Improves with more users
+### 4. 📈 Live Market Intelligence
+- Real-time crop prices from AGMARKNET (data.gov.in) for 15 major crops
+- 🔥 High Demand / ❄️ Low Demand / 💰 Best Price analysis
+- Top 5 recommended crops with opportunity scoring
+- 60 real APMC markets across 21 Indian states
+- Distance-sorted nearby markets with interactive Leaflet map
 
-### 5. 📅 Precision Resource Schedule
-Personalized farming plan with:
-- Irrigation schedule
-- Fertilizer timing
-- Pest management
-- Harvest optimization
+### 5. 👨‍🌾 Farmer-Friendly UI (Low Literacy Design)
+- Large icons, minimal text, color-coded everything
+- Star ratings instead of percentages
+- Simple language: "Sell Now" / "Wait to Sell"
+- Mobile-first with bottom navigation bar
+- Touch targets optimized for mobile devices
 
-### 6. 🎮 Scenario Simulation
-"What-if" simulator for:
-- Climate variations
-- Resource changes
-- Market fluctuations
-
-### 7. 📈 Market Optimization
-- Best market identification
-- Profit comparisons
-- Opportunity alerts
-- Optimal selling timing
+### 6. 🔐 Authentication & Security
+- JWT-based login/register with Redux state management
+- Auto-redirect on 401, secure token storage
+- Global error boundary for graceful error handling
 
 ---
 
@@ -236,17 +229,31 @@ python scripts/seed_data.py
 **Frontend (.env.local)**
 ```env
 VITE_API_URL=http://localhost:8000
-VITE_MAPBOX_TOKEN=your_mapbox_token_here
 ```
 
 **Backend (.env)**
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/gainn
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/rootaura
 REDIS_URL=redis://localhost:6379
+
+# Auth
 SECRET_KEY=your-secret-key
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# External APIs (required for live data)
+OPENWEATHERMAP_API_KEY=your_owm_key          # Weather + farming tips
+MARKET_DATA_API_KEY=your_agmarknet_key        # Live crop prices
+SENTINEL_HUB_CLIENT_ID=your_client_id        # Satellite NDVI
+SENTINEL_HUB_CLIENT_SECRET=your_secret       # Satellite NDVI
+
+# Free APIs (no key needed)
+SOILGRIDS_API_URL=https://rest.isric.org/soilgrids/v2.0
+OPEN_ELEVATION_API_URL=https://api.open-elevation.com/api/v1
 ```
+
+> **Note:** The app works without API keys using synthetic fallback data. Add real keys for live weather, market prices, and satellite imagery.
 
 ---
 

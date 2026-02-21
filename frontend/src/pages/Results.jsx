@@ -1,20 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CropCard from '@/components/results/CropCard'
 import YieldChart from '@/components/results/YieldChart'
 import ProfitComparison from '@/components/results/ProfitComparison'
 import ResourceSchedule from '@/components/results/ResourceSchedule'
+import DetailedCropModal from '@/components/results/DetailedCropModal'
 import analysisService from '@/services/analysisService'
 
 const FALLBACK_CROPS = [
-    { name: 'Rice (Basmati)', icon: '🌾', suitability: 92, yield: 6.8, profit: 72000, season: 'Kharif (Jun–Nov)', description: 'Excellent match for your alluvial soil with high moisture retention and moderate rainfall.' },
-    { name: 'Wheat', icon: '🌿', suitability: 85, yield: 5.2, profit: 58000, season: 'Rabi (Nov–Apr)', description: 'Strong fit given your soil pH and temperature range. Good winter crop rotation option.' },
-    { name: 'Sugarcane', icon: '🎋', suitability: 78, yield: 45.0, profit: 95000, season: 'Year-round', description: 'High profit potential with your irrigation setup. Requires sustained water supply.' },
-    { name: 'Cotton', icon: '🏵️', suitability: 64, yield: 2.1, profit: 48000, season: 'Kharif (Apr–Oct)', description: 'Moderate suitability. Consider if your soil drainage supports cotton root development.' },
-    { name: 'Maize', icon: '🌽', suitability: 58, yield: 4.5, profit: 35000, season: 'Kharif/Rabi', description: 'Decent yield potential but profit margins are lower than top recommendations.' },
+    { name: 'Rice (Basmati)', icon: '🌾', suitability: 92, yield: 6.8, profit: 72000, season: 'Kharif (Jun–Nov)', description: 'Excellent match for your alluvial soil with high moisture retention and moderate rainfall.', roi: 74, revenue: 122400, totalCost: 52000, marketInfo: { demand: 'high', volatility: 'low' } },
+    { name: 'Wheat', icon: '🌿', suitability: 85, yield: 5.2, profit: 58000, season: 'Rabi (Nov–Apr)', description: 'Strong fit given your soil pH and temperature range. Good winter crop rotation option.', roi: 62, revenue: 114400, totalCost: 56400, marketInfo: { demand: 'high', volatility: 'low' } },
+    { name: 'Sugarcane', icon: '🎋', suitability: 78, yield: 45.0, profit: 95000, season: 'Year-round', description: 'High profit potential with your irrigation setup. Requires sustained water supply.', roi: 56, revenue: 157500, totalCost: 62500, marketInfo: { demand: 'high', volatility: 'low' } },
+    { name: 'Cotton', icon: '🏵️', suitability: 64, yield: 2.1, profit: 48000, season: 'Kharif (Apr–Oct)', description: 'Moderate suitability. Consider if your soil drainage supports cotton root development.', roi: 45, revenue: 115500, totalCost: 67500, marketInfo: { demand: 'medium', volatility: 'high' } },
+    { name: 'Maize', icon: '🌽', suitability: 58, yield: 4.5, profit: 35000, season: 'Kharif/Rabi', description: 'Decent yield potential but profit margins are lower than top recommendations.', roi: 37, revenue: 72000, totalCost: 37000, marketInfo: { demand: 'high', volatility: 'medium' } },
 ]
 
-const CROP_ICONS = { rice: '🌾', wheat: '🌿', sugarcane: '🎋', cotton: '🏵️', maize: '🌽', soybean: '🫘', potato: '🥔', tomato: '🍅', lentil: '🫘', mustard: '🌻', turmeric: '🟡', groundnut: '🥜', millet: '🌾', sorghum: '🌿', barley: '🌿', chickpea: '🫘', sunflower: '🌻', onion: '🧅', banana: '🍌', coconut: '🥥' }
+const CROP_ICONS = { rice: '🌾', wheat: '🌿', sugarcane: '🎋', cotton: '🏵️', maize: '🌽', soybean: '🫘', potato: '🥔', tomato: '🍅', lentil: '🫘', mustard: '🌻', turmeric: '🟡', groundnut: '🥜', millet: '🌾', sorghum: '🌿', barley: '🌿', chickpea: '🫘', sunflower: '🌻', onion: '🧅', banana: '🍌', coconut: '🥥', mango: '🥭', orange: '🍊', jute: '🌿', cabbage: '🥬' }
 
 function mapAnalysisTocrops(recommendations) {
     return recommendations.map(r => ({
@@ -22,11 +23,24 @@ function mapAnalysisTocrops(recommendations) {
         icon: CROP_ICONS[r.name?.toLowerCase()] || '🌱',
         suitability: Math.round(r.suitability_score || 0),
         yield: parseFloat((r.predicted_yield || 0).toFixed(1)),
-        profit: Math.round(r.estimated_profit || 0),
-        season: '—',
+        profit: Math.round(r.profit || r.estimated_profit || 0),
+        season: r.season_name || '—',
         description: r.breakdown
             ? `Soil: ${Math.round(r.breakdown.soil || 0)}% | Climate: ${Math.round(r.breakdown.climate || 0)}% | Resource: ${Math.round(r.breakdown.resource || 0)}%`
             : 'Based on land suitability analysis.',
+        // Enriched fields
+        roi: r.roi != null ? Math.round(r.roi) : null,
+        revenue: Math.round(r.revenue || 0),
+        totalCost: Math.round(r.total_cost || 0),
+        costBreakdown: r.cost_breakdown || null,
+        marketInfo: r.market_info || null,
+        growthDuration: r.growth_duration,
+        sowingMonths: r.sowing_months,
+        harvestMonths: r.harvest_months,
+        tempRange: r.temp_range,
+        rainfallRange: r.rainfall_range,
+        irrigationRequired: r.irrigation_required,
+        soilTypes: r.soil_types,
     }))
 }
 
@@ -36,6 +50,10 @@ export default function Results() {
     const [loading, setLoading] = useState(true)
     const [analysisId, setAnalysisId] = useState(null)
     const [error, setError] = useState(null)
+    const [isRealData, setIsRealData] = useState(false)
+
+    // Modal state
+    const [selectedCrop, setSelectedCrop] = useState(null)
 
     useEffect(() => {
         async function fetchResults() {
@@ -50,6 +68,7 @@ export default function Results() {
                     const data = res.data
                     if (data?.recommendations?.length > 0) {
                         setCrops(mapAnalysisTocrops(data.recommendations))
+                        setIsRealData(true)
                     } else {
                         setCrops(FALLBACK_CROPS)
                     }
@@ -64,6 +83,7 @@ export default function Results() {
                         const data = recRes.data
                         if (data?.recommendations?.length > 0) {
                             setCrops(mapAnalysisTocrops(data.recommendations))
+                            setIsRealData(true)
                         } else {
                             setCrops(FALLBACK_CROPS)
                         }
@@ -79,6 +99,10 @@ export default function Results() {
             }
         }
         fetchResults()
+    }, [])
+
+    const handleViewDetails = useCallback((cropName) => {
+        setSelectedCrop(cropName)
     }, [])
 
     if (loading) {
@@ -122,6 +146,23 @@ export default function Results() {
                 </div>
             </div>
 
+            {/* Data source indicator */}
+            {!isRealData && (
+                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-100 text-xs text-amber-700">
+                    <span>⚠️</span>
+                    <span>
+                        Showing <strong>demo data</strong>. Submit a land analysis to see real, ML-powered recommendations with
+                        accurate cost breakdowns and market data.
+                    </span>
+                    <button
+                        onClick={() => navigate('/land-analysis')}
+                        className="ml-auto text-amber-800 font-semibold hover:underline"
+                    >
+                        Start Analysis →
+                    </button>
+                </div>
+            )}
+
             {/* Summary bar */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="bg-gradient-to-br from-primary-500 to-emerald-500 rounded-xl p-4 text-white">
@@ -147,7 +188,12 @@ export default function Results() {
                 <h2 className="font-semibold text-gray-900 mb-3">🌾 Recommended Crops</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     {displayCrops.map((crop, i) => (
-                        <CropCard key={crop.name} crop={crop} rank={i + 1} />
+                        <CropCard
+                            key={crop.name}
+                            crop={crop}
+                            rank={i + 1}
+                            onViewDetails={isRealData && analysisId ? handleViewDetails : undefined}
+                        />
                     ))}
                 </div>
             </div>
@@ -160,6 +206,15 @@ export default function Results() {
 
             {/* Resource Schedule */}
             <ResourceSchedule />
+
+            {/* Crop detail modal */}
+            {selectedCrop && analysisId && (
+                <DetailedCropModal
+                    analysisId={analysisId}
+                    cropName={selectedCrop}
+                    onClose={() => setSelectedCrop(null)}
+                />
+            )}
         </div>
     )
 }

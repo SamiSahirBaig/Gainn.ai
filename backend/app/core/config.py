@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = [
         "http://localhost:5173",
         "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000",
     ]
 
     # ── Celery ───────────────────────────────────────────
@@ -44,6 +46,11 @@ class Settings(BaseSettings):
     # ── External APIs ────────────────────────────────────
     WEATHER_API_KEY: str = ""
     MARKET_DATA_API_KEY: str = ""
+
+    # ── Location Data APIs (Issue #26) ───────────────────
+    SOILGRIDS_API_URL: str = "https://rest.isric.org/soilgrids/v2.0"
+    OPEN_ELEVATION_API_URL: str = "https://api.open-elevation.com/api/v1"
+    OPENWEATHERMAP_API_KEY: str = ""
 
     # ── Sentinel Hub (NDVI Satellite Imagery) ────────────
     SENTINEL_HUB_CLIENT_ID: str = ""

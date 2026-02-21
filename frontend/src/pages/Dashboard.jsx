@@ -1,95 +1,91 @@
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { useState, useEffect } from 'react'
 import StatsCard from '@/components/dashboard/StatsCard'
 import RecentAnalyses from '@/components/dashboard/RecentAnalyses'
 import QuickActions from '@/components/dashboard/QuickActions'
 import WeatherWidget from '@/components/dashboard/WeatherWidget'
+import NearbyMarkets from '@/components/dashboard/NearbyMarkets'
+import LiveMarketFeed from '@/components/dashboard/LiveMarketFeed'
+import MarketInsights from '@/components/dashboard/MarketInsights'
+import analysisService from '@/services/analysisService'
+import landService from '@/services/landService'
 
-const yieldData = [
-    { month: 'Aug', yield: 2400 },
-    { month: 'Sep', yield: 2800 },
-    { month: 'Oct', yield: 3200 },
-    { month: 'Nov', yield: 2900 },
-    { month: 'Dec', yield: 3500 },
-    { month: 'Jan', yield: 3800 },
-    { month: 'Feb', yield: 4100 },
-]
-
-const stats = [
-    { title: 'Total Land Analyzed', value: '247 ha', icon: '🌍', trend: '12%', trendDirection: 'up', subtitle: 'Across 18 parcels' },
-    { title: 'Crops Recommended', value: '34', icon: '🌾', trend: '8%', trendDirection: 'up', subtitle: 'This quarter' },
-    { title: 'Avg Profit Increase', value: '+23%', icon: '📈', trend: '5%', trendDirection: 'up', subtitle: 'Over baseline' },
-    { title: 'Analyses Run', value: '89', icon: '🔬', trend: '3%', trendDirection: 'down', subtitle: 'This month' },
+const DEFAULT_STATS = [
+    { title: 'Land Analyzed', value: '—', icon: '🌍', subtitle: 'Loading...' },
+    { title: 'Crops Suggested', value: '—', icon: '🌾', subtitle: 'Loading...' },
+    { title: 'Analyses Run', value: '—', icon: '🔬', subtitle: 'Loading...' },
+    { title: 'Markets Tracked', value: '60', icon: '🏪', subtitle: 'Across India' },
 ]
 
 export default function Dashboard() {
+    const [stats, setStats] = useState(DEFAULT_STATS)
+
+    useEffect(() => {
+        async function fetchStats() {
+            let landCount = 0
+            let analysisCount = 0
+            let cropCount = 0
+
+            try {
+                const landsRes = await landService.getLands()
+                const lands = landsRes.data?.data || landsRes.data || []
+                landCount = lands.length
+            } catch { /* ignore */ }
+
+            try {
+                const analysesRes = await analysisService.listAnalyses({ limit: 100 })
+                const analyses = analysesRes.data?.data || analysesRes.data || []
+                analysisCount = analyses.length
+                // Estimate crops suggested (top 5 per analysis)
+                cropCount = Math.min(analysisCount * 5, 50)
+            } catch { /* ignore */ }
+
+            setStats([
+                { title: 'Land Parcels', value: landCount > 0 ? `${landCount}` : '0', icon: '🌍', subtitle: landCount > 0 ? `${landCount} parcels registered` : 'Add your first land', trend: landCount > 0 ? `${landCount}` : undefined, trendDirection: 'up' },
+                { title: 'Crops Suggested', value: cropCount > 0 ? `${cropCount}` : '0', icon: '🌾', subtitle: cropCount > 0 ? 'From analyses' : 'Run an analysis', trend: cropCount > 0 ? `${cropCount}` : undefined, trendDirection: 'up' },
+                { title: 'Analyses Run', value: `${analysisCount}`, icon: '🔬', subtitle: analysisCount > 0 ? 'Total analyses' : 'Start analyzing', trend: analysisCount > 0 ? `${analysisCount}` : undefined, trendDirection: analysisCount > 0 ? 'up' : 'neutral' },
+                { title: 'Markets Tracked', value: '60', icon: '🏪', subtitle: 'APMC markets across India' },
+            ])
+        }
+        fetchStats()
+    }, [])
+
     return (
-        <div className="space-y-6">
+        <div className="space-y-5">
             {/* Page header */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
-                <p className="text-sm text-gray-500 mt-1">Welcome back! Here's your agricultural overview.</p>
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">🏠 My Farm</h1>
+                <p className="text-sm text-gray-500 mt-1">Your farming overview at a glance</p>
             </div>
 
-            {/* Stats row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            {/* Stats row — now live from backend */}
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
                 {stats.map((stat) => (
                     <StatsCard key={stat.title} {...stat} />
                 ))}
             </div>
 
-            {/* Chart */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                <div className="flex items-center justify-between mb-4">
-                    <div>
-                        <h3 className="font-semibold text-gray-900">Yield Trend</h3>
-                        <p className="text-xs text-gray-400 mt-0.5">Average predicted yield (kg/ha) — last 7 months</p>
-                    </div>
-                    <span className="text-xs font-medium text-primary-600 bg-primary-50 px-3 py-1 rounded-full">
-                        +18% overall
-                    </span>
+            {/* Weather + Market Insights side by side */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-1">
+                    <WeatherWidget />
                 </div>
-                <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={yieldData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
-                            <defs>
-                                <linearGradient id="yieldGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.2} />
-                                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                            <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                            <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: 'white',
-                                    border: '1px solid #e2e8f0',
-                                    borderRadius: '12px',
-                                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-                                    fontSize: '13px',
-                                }}
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="yield"
-                                stroke="#22c55e"
-                                strokeWidth={2.5}
-                                fill="url(#yieldGradient)"
-                                dot={{ r: 4, fill: '#22c55e', strokeWidth: 2, stroke: 'white' }}
-                                activeDot={{ r: 6, fill: '#16a34a', strokeWidth: 2, stroke: 'white' }}
-                            />
-                        </AreaChart>
-                    </ResponsiveContainer>
+                <div className="lg:col-span-2">
+                    <MarketInsights />
                 </div>
             </div>
 
-            {/* Bottom grid */}
+            {/* Live Market Feed */}
+            <LiveMarketFeed />
+
+            {/* Nearby Markets */}
+            <NearbyMarkets />
+
+            {/* Bottom grid: Recent + Quick Actions */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div className="lg:col-span-2">
                     <RecentAnalyses />
                 </div>
-                <div className="space-y-4">
-                    <WeatherWidget />
+                <div>
                     <QuickActions />
                 </div>
             </div>
