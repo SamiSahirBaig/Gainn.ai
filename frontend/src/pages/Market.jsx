@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import marketService from '@/services/marketService'
 import TopRecommendedCrops from '@/components/market/TopRecommendedCrops'
 import HighDemandCrops from '@/components/market/HighDemandCrops'
@@ -36,6 +37,7 @@ const FALLBACK = {
 export default function Market() {
     const [data, setData] = useState(FALLBACK)
     const [loading, setLoading] = useState(true)
+    const { t } = useTranslation()
 
     useEffect(() => {
         async function fetchIntelligence() {
@@ -65,13 +67,13 @@ export default function Market() {
         <div className="space-y-5">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">📊 Market Intelligence</h1>
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t('market.title')}</h1>
                 <p className="text-sm text-gray-500 mt-1">
-                    What to grow, what to sell, and where to sell — simple answers for smart farming
+                    {t('market.subtitle')}
                 </p>
                 {data.season && (
                     <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full">
-                        🌱 Current Season: {data.season}
+                        🌱 {t('market.currentSeason')}: {data.season}
                     </span>
                 )}
             </div>

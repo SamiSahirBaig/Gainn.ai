@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import marketService from '@/services/marketService'
 
 const FALLBACK_INSIGHTS = {
@@ -25,6 +26,7 @@ const FALLBACK_INSIGHTS = {
 export default function MarketInsights() {
     const [insights, setInsights] = useState(FALLBACK_INSIGHTS)
     const [loading, setLoading] = useState(true)
+    const { t } = useTranslation()
 
     useEffect(() => {
         async function fetchInsights() {
@@ -53,7 +55,7 @@ export default function MarketInsights() {
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                💡 Market Insights
+                {t('insights.title')}
             </h3>
 
             {/* Summary */}
@@ -67,7 +69,7 @@ export default function MarketInsights() {
                 {/* Sell Now */}
                 {insights.hot_crops?.length > 0 && (
                     <div className="bg-emerald-50/50 rounded-xl p-3.5 border border-emerald-100">
-                        <p className="text-sm font-bold text-emerald-700 mb-2">🔥 Sell Now</p>
+                        <p className="text-sm font-bold text-emerald-700 mb-2">{t('insights.sellNow')}</p>
                         <div className="space-y-2">
                             {insights.hot_crops.map((c, i) => (
                                 <div key={i} className="flex items-start gap-2">
@@ -82,7 +84,7 @@ export default function MarketInsights() {
                 {/* Wait */}
                 {insights.cold_crops?.length > 0 && (
                     <div className="bg-red-50/50 rounded-xl p-3.5 border border-red-100">
-                        <p className="text-sm font-bold text-red-600 mb-2">❄️ Wait to Sell</p>
+                        <p className="text-sm font-bold text-red-600 mb-2">{t('insights.waitToSell')}</p>
                         <div className="space-y-2">
                             {insights.cold_crops.map((c, i) => (
                                 <div key={i} className="flex items-start gap-2">
@@ -98,7 +100,7 @@ export default function MarketInsights() {
             {/* Best Prices */}
             {insights.best_prices?.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-gray-100">
-                    <p className="text-xs font-bold text-gray-500 uppercase mb-2">💰 Highest Prices Today</p>
+                    <p className="text-xs font-bold text-gray-500 uppercase mb-2">{t('insights.highestPrices')}</p>
                     <div className="flex gap-3">
                         {insights.best_prices.map((c, i) => (
                             <div key={i} className="flex items-center gap-1.5 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
@@ -113,7 +115,7 @@ export default function MarketInsights() {
             {/* Opportunities */}
             {insights.opportunities?.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-gray-100">
-                    <p className="text-xs font-bold text-gray-500 uppercase mb-2">🌟 Good Opportunities</p>
+                    <p className="text-xs font-bold text-gray-500 uppercase mb-2">{t('insights.goodOpportunities')}</p>
                     <div className="space-y-1.5">
                         {insights.opportunities.map((c, i) => (
                             <div key={i} className="flex items-center gap-2 text-xs text-gray-600">

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import weatherService from '@/services/weatherService'
 
 const TEMP_COLOR = (t) => {
@@ -30,6 +31,7 @@ export default function WeatherWidget() {
     const [loading, setLoading] = useState(true)
     const [showForecast, setShowForecast] = useState(false)
     const [lastUpdated, setLastUpdated] = useState(null)
+    const { t: tr } = useTranslation()
 
     const fetchWeather = useCallback(async () => {
         setLoading(true)
@@ -81,7 +83,7 @@ export default function WeatherWidget() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-3">
                     <div>
-                        <p className="text-sm font-medium text-white/80">Current Weather</p>
+                        <p className="text-sm font-medium text-white/80">{tr('weather.title')}</p>
                         <p className="text-xs text-white/60">
                             {w.location_name}{w.country ? `, ${w.country}` : ''}
                         </p>
@@ -104,15 +106,15 @@ export default function WeatherWidget() {
                     <span className="text-lg text-white/70 mb-1.5">C</span>
                 </div>
                 <p className="text-xs text-white/60 mb-3 capitalize">
-                    {w.description} • Feels like {Math.round(w.feels_like)}°C
+                    {w.description} • {tr('weather.feelsLike')} {Math.round(w.feels_like)}°C
                 </p>
 
                 {/* Stats grid */}
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-white/80 mb-3">
-                    <span>💧 {w.humidity}% Humidity</span>
+                    <span>💧 {w.humidity}% {tr('weather.humidity')}</span>
                     <span>💨 {w.wind_speed} km/h {w.wind_direction || ''}</span>
-                    <span>🌧️ {w.rain_1h || 0} mm Rain</span>
-                    <span>👁️ {w.visibility || 10} km Visibility</span>
+                    <span>🌧️ {w.rain_1h || 0} mm {tr('weather.rain')}</span>
+                    <span>👁️ {w.visibility || 10} km {tr('weather.visibility')}</span>
                 </div>
 
                 {/* Farming tip */}
@@ -143,7 +145,7 @@ export default function WeatherWidget() {
                         onClick={() => setShowForecast(!showForecast)}
                         className="text-[11px] text-white/60 hover:text-white/90 transition-colors mb-2 flex items-center gap-1"
                     >
-                        {showForecast ? '▼' : '▶'} {showForecast ? 'Hide' : 'Show'} 5-Day Forecast
+                        {showForecast ? '▼' : '▶'} {showForecast ? tr('weather.hideForecast') : tr('weather.showForecast')}
                     </button>
 
                     {/* Always show 3-day mini */}
@@ -210,7 +212,7 @@ export default function WeatherWidget() {
                 {/* Last updated */}
                 <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/10">
                     <p className="text-[9px] text-white/30">
-                        {w.data_source === 'openweathermap' ? '🟢 Live' : '🟡 Estimated'}
+                        {w.data_source === 'openweathermap' ? '🟢 Live' : `🟡 ${tr('weather.estimated')}`}
                         {lastUpdated && ` • ${lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
                     </p>
                     <span className={`text-[10px] px-2 py-0.5 rounded-full ${activity.bg} ${activity.text}`}>

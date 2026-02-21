@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import analysisService from '@/services/analysisService'
 
 const FALLBACK = [
@@ -24,6 +25,7 @@ const statusLabels = {
 export default function RecentAnalyses() {
     const [analyses, setAnalyses] = useState(FALLBACK)
     const [loading, setLoading] = useState(true)
+    const { t } = useTranslation()
 
     useEffect(() => {
         async function fetchRecent() {
@@ -69,9 +71,9 @@ export default function RecentAnalyses() {
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="font-semibold text-gray-900">Recent Analyses</h3>
+                <h3 className="font-semibold text-gray-900">{t('dashboard.recentAnalyses')}</h3>
                 <Link to="/results" className="text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors">
-                    View all →
+                    {t('dashboard.viewAll')}
                 </Link>
             </div>
 

@@ -1,14 +1,16 @@
 import { Link, useLocation } from 'react-router-dom'
-
-const menuItems = [
-    { path: '/dashboard', label: 'Home', icon: '🏠' },
-    { path: '/land-analysis', label: 'Analyze Land', icon: '🗺️' },
-    { path: '/results', label: 'Crop Results', icon: '📋' },
-    { path: '/market', label: 'Market Prices', icon: '📈' },
-]
+import { useTranslation } from 'react-i18next'
 
 export default function Sidebar({ isOpen, onClose }) {
     const location = useLocation()
+    const { t } = useTranslation()
+
+    const menuItems = [
+        { path: '/dashboard', label: t('nav.home'), icon: '🏠' },
+        { path: '/land-analysis', label: t('nav.analyzeLand'), icon: '🗺️' },
+        { path: '/results', label: t('nav.cropResults'), icon: '📋' },
+        { path: '/market', label: t('nav.marketPrices'), icon: '📈' },
+    ]
 
     return (
         <>
@@ -29,13 +31,13 @@ export default function Sidebar({ isOpen, onClose }) {
                     {/* Nav items */}
                     <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
                         <p className="px-3 mb-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                            Navigation
+                            {t('nav.navigation')}
                         </p>
                         {menuItems.map((item) => {
                             const isActive = location.pathname === item.path
                             return (
                                 <Link
-                                    key={item.label}
+                                    key={item.path}
                                     to={item.path}
                                     onClick={onClose}
                                     className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium transition-all duration-200 group ${isActive

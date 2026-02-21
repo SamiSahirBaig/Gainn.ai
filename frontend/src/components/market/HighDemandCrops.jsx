@@ -1,12 +1,15 @@
+import { useTranslation } from 'react-i18next'
+
 export default function HighDemandCrops({ crops }) {
+    const { t } = useTranslation()
     if (!crops?.length) return null
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <h2 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                🔥 High Demand Crops
+                {t('market.highDemand')}
             </h2>
-            <p className="text-xs text-gray-400 mb-3">These crops are selling fast — grow or sell these</p>
+            <p className="text-xs text-gray-400 mb-3">{t('market.highSubtitle')}</p>
 
             <div className="space-y-2">
                 {crops.map((crop) => (
@@ -29,7 +32,7 @@ export default function HighDemandCrops({ crops }) {
                                 ₹{crop.price?.toLocaleString()}
                             </p>
                             <p className="text-[10px] text-emerald-600">
-                                ↑ {crop.trend_label || 'Rising'}
+                                ↑ {crop.trend_label || t('market.rising')}
                             </p>
                         </div>
                     </div>

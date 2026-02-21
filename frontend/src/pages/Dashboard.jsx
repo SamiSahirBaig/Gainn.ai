@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import StatsCard from '@/components/dashboard/StatsCard'
 import RecentAnalyses from '@/components/dashboard/RecentAnalyses'
 import QuickActions from '@/components/dashboard/QuickActions'
@@ -18,6 +19,7 @@ const DEFAULT_STATS = [
 
 export default function Dashboard() {
     const [stats, setStats] = useState(DEFAULT_STATS)
+    const { t } = useTranslation()
 
     useEffect(() => {
         async function fetchStats() {
@@ -35,26 +37,25 @@ export default function Dashboard() {
                 const analysesRes = await analysisService.listAnalyses({ limit: 100 })
                 const analyses = analysesRes.data?.data || analysesRes.data || []
                 analysisCount = analyses.length
-                // Estimate crops suggested (top 5 per analysis)
                 cropCount = Math.min(analysisCount * 5, 50)
             } catch { /* ignore */ }
 
             setStats([
-                { title: 'Land Parcels', value: landCount > 0 ? `${landCount}` : '0', icon: '🌍', subtitle: landCount > 0 ? `${landCount} parcels registered` : 'Add your first land', trend: landCount > 0 ? `${landCount}` : undefined, trendDirection: 'up' },
-                { title: 'Crops Suggested', value: cropCount > 0 ? `${cropCount}` : '0', icon: '🌾', subtitle: cropCount > 0 ? 'From analyses' : 'Run an analysis', trend: cropCount > 0 ? `${cropCount}` : undefined, trendDirection: 'up' },
-                { title: 'Analyses Run', value: `${analysisCount}`, icon: '🔬', subtitle: analysisCount > 0 ? 'Total analyses' : 'Start analyzing', trend: analysisCount > 0 ? `${analysisCount}` : undefined, trendDirection: analysisCount > 0 ? 'up' : 'neutral' },
-                { title: 'Markets Tracked', value: '60', icon: '🏪', subtitle: 'APMC markets across India' },
+                { title: t('dashboard.landParcels'), value: landCount > 0 ? `${landCount}` : '0', icon: '🌍', subtitle: landCount > 0 ? `${landCount} parcels registered` : 'Add your first land', trend: landCount > 0 ? `${landCount}` : undefined, trendDirection: 'up' },
+                { title: t('dashboard.cropsSuggested'), value: cropCount > 0 ? `${cropCount}` : '0', icon: '🌾', subtitle: cropCount > 0 ? 'From analyses' : 'Run an analysis', trend: cropCount > 0 ? `${cropCount}` : undefined, trendDirection: 'up' },
+                { title: t('dashboard.analysesRun'), value: `${analysisCount}`, icon: '🔬', subtitle: analysisCount > 0 ? 'Total analyses' : 'Start analyzing', trend: analysisCount > 0 ? `${analysisCount}` : undefined, trendDirection: analysisCount > 0 ? 'up' : 'neutral' },
+                { title: t('dashboard.marketTracked'), value: '60', icon: '🏪', subtitle: 'APMC markets across India' },
             ])
         }
         fetchStats()
-    }, [])
+    }, [t])
 
     return (
         <div className="space-y-5">
             {/* Page header */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">🏠 My Farm</h1>
-                <p className="text-sm text-gray-500 mt-1">Your farming overview at a glance</p>
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">🏠 {t('dashboard.welcome')}</h1>
+                <p className="text-sm text-gray-500 mt-1">{t('header.subtitle')}</p>
             </div>
 
             {/* Stats row — now live from backend */}

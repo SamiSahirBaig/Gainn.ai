@@ -70,7 +70,15 @@ GAINN provides:
 - Mobile-first with bottom navigation bar
 - Touch targets optimized for mobile devices
 
-### 6. 🔐 Authentication & Security
+### 6. 🌐 Multi-Language Support (i18n)
+- **4 languages:** English, Hindi (हिन्दी), Marathi (मराठी), Telugu (తెలుగు)
+- Language switcher dropdown in header with flag icons
+- Persistent language selection via localStorage
+- Auto-detection from browser language preferences
+- Full translation of all UI: navigation, stats, weather, market insights, quick actions, forms
+- Powered by `i18next` + `react-i18next` + `i18next-browser-languagedetector`
+
+### 7. 🔐 Authentication & Security
 - JWT-based login/register with Redux state management
 - Auto-redirect on 401, secure token storage
 - Global error boundary for graceful error handling
@@ -116,6 +124,7 @@ GAINN provides:
 - **Charts:** Recharts
 - **Maps:** React-Leaflet
 - **Routing:** React Router v6
+- **i18n:** i18next + react-i18next (EN, HI, MR, TE)
 
 ### Backend
 - **Framework:** FastAPI (Python 3.11+)
@@ -150,6 +159,9 @@ GAINN/
 │   │   ├── pages/           # Page components
 │   │   ├── services/        # API services
 │   │   ├── store/           # Redux store
+│   │   ├── i18n/            # Internationalization
+│   │   │   ├── index.js     # i18n config
+│   │   │   └── locales/     # en.json, hi.json, mr.json, te.json
 │   │   ├── hooks/           # Custom hooks
 │   │   └── utils/           # Utility functions
 │   ├── public/              # Static assets

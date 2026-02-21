@@ -311,6 +311,13 @@ Gainn.ai/
 │   │   ├── pages/               # Route-level pages
 │   │   ├── services/            # API service layer
 │   │   ├── store/               # Redux state management
+│   │   ├── i18n/                # Internationalization
+│   │   │   ├── index.js         # i18n config (i18next + language detector)
+│   │   │   └── locales/         # Translation JSON files
+│   │   │       ├── en.json      # English
+│   │   │       ├── hi.json      # Hindi
+│   │   │       ├── mr.json      # Marathi
+│   │   │       └── te.json      # Telugu
 │   │   └── App.jsx              # Router + Layout
 │   ├── package.json             # Node dependencies
 │   └── vite.config.js           # Vite build config
@@ -439,6 +446,39 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 | `/market` | Market intelligence | ❌ (demo data) |
 | `/login` | Sign in | ❌ |
 | `/register` | Create account | ❌ |
+
+---
+
+## Multi-Language Support (i18n)
+
+Gainn.ai supports **4 languages** for farmer accessibility:
+
+| Language | Code | Flag |
+|----------|------|------|
+| English | `en` | 🇬🇧 |
+| Hindi | `hi` | 🇮🇳 |
+| Marathi | `mr` | 🇮🇳 |
+| Telugu | `te` | 🇮🇳 |
+
+### How It Works
+
+- **Config:** `frontend/src/i18n/index.js` initializes `i18next` with `react-i18next` and `i18next-browser-languagedetector`
+- **Translations:** JSON files in `frontend/src/i18n/locales/` with hierarchical keys (e.g., `weather.humidity`, `insights.sellNow`)
+- **Persistence:** Language choice saved to `localStorage` key `gainnai_language`
+- **Usage:** Components use `const { t } = useTranslation()` hook and render `{t('key')}`
+
+### Adding a New Language
+
+1. Create `frontend/src/i18n/locales/XX.json` (copy structure from `en.json`)
+2. Add the language to the `resources` object in `frontend/src/i18n/index.js`
+3. Add a new option to `LanguageSwitcher.jsx` in the `languages` array
+
+### Components with Translations (15 total)
+
+Dashboard: `WeatherWidget`, `MarketInsights`, `LiveMarketFeed`, `QuickActions`, `NearbyMarkets`, `RecentAnalyses`
+Market: `TopRecommendedCrops`, `HighDemandCrops`, `LowDemandCrops`, `BestPriceCrops`, `BestMarkets`
+Layout: `Header`, `Sidebar`, `BottomNav`
+Pages: `Dashboard`, `Market`
 
 ---
 

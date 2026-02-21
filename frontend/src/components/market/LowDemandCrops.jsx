@@ -1,11 +1,15 @@
+import { useTranslation } from 'react-i18next'
+
 export default function LowDemandCrops({ crops }) {
+    const { t } = useTranslation()
+
     if (!crops?.length) {
         return (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                 <h2 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                    ⚠️ Low Demand — Avoid These
+                    {t('market.lowDemand')}
                 </h2>
-                <p className="text-sm text-gray-400 mt-2">No crops to avoid right now — market is healthy! ✅</p>
+                <p className="text-sm text-gray-400 mt-2">{t('market.noLowDemand')}</p>
             </div>
         )
     }
@@ -13,9 +17,9 @@ export default function LowDemandCrops({ crops }) {
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <h2 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                ⚠️ Low Demand — Avoid These
+                {t('market.lowDemand')}
             </h2>
-            <p className="text-xs text-gray-400 mb-3">These crops have low demand or falling prices</p>
+            <p className="text-xs text-gray-400 mb-3">{t('market.lowSubtitle')}</p>
 
             <div className="space-y-2">
                 {crops.map((crop) => (
@@ -38,7 +42,7 @@ export default function LowDemandCrops({ crops }) {
                                 ₹{crop.price?.toLocaleString()}
                             </p>
                             <p className="text-[10px] text-red-500">
-                                ↓ {crop.trend_label || 'Falling'}
+                                ↓ {crop.trend_label || t('market.falling')}
                             </p>
                         </div>
                     </div>

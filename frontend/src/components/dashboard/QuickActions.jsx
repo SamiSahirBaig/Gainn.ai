@@ -1,37 +1,40 @@
 import { Link } from 'react-router-dom'
-
-const actions = [
-    {
-        label: 'New Analysis',
-        description: 'Analyze a new land parcel',
-        icon: '🔬',
-        to: '/land-analysis',
-        gradient: 'from-primary-500 to-emerald-500',
-    },
-    {
-        label: 'Crop Results',
-        description: 'Check crop recommendations',
-        icon: '📋',
-        to: '/results',
-        gradient: 'from-blue-500 to-cyan-500',
-    },
-    {
-        label: 'Market Prices',
-        description: 'Live crop market data',
-        icon: '💰',
-        to: '/market',
-        gradient: 'from-amber-500 to-orange-500',
-    },
-]
+import { useTranslation } from 'react-i18next'
 
 export default function QuickActions() {
+    const { t } = useTranslation()
+
+    const actions = [
+        {
+            label: t('quickActions.newAnalysis'),
+            description: t('quickActions.newAnalysisDesc'),
+            icon: '🔬',
+            to: '/land-analysis',
+            gradient: 'from-primary-500 to-emerald-500',
+        },
+        {
+            label: t('quickActions.cropResults'),
+            description: t('quickActions.cropResultsDesc'),
+            icon: '📋',
+            to: '/results',
+            gradient: 'from-blue-500 to-cyan-500',
+        },
+        {
+            label: t('quickActions.marketPrices'),
+            description: t('quickActions.marketPricesDesc'),
+            icon: '💰',
+            to: '/market',
+            gradient: 'from-amber-500 to-orange-500',
+        },
+    ]
+
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-            <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">{t('quickActions.title')}</h3>
             <div className="space-y-3">
                 {actions.map((action) => (
                     <Link
-                        key={action.label}
+                        key={action.to}
                         to={action.to}
                         className="group relative flex items-center gap-3 p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
                     >

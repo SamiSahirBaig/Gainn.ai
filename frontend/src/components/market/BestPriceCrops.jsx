@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 const TREND_STYLE = {
     up: { color: 'text-emerald-600', arrow: '↑', bg: 'bg-emerald-50' },
     down: { color: 'text-red-500', arrow: '↓', bg: 'bg-red-50' },
@@ -5,14 +7,15 @@ const TREND_STYLE = {
 }
 
 export default function BestPriceCrops({ crops }) {
+    const { t } = useTranslation()
     if (!crops?.length) return null
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <h2 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                💰 Best Price Crops
+                {t('market.bestPrices')}
             </h2>
-            <p className="text-xs text-gray-400 mb-3">Crops with the highest prices right now</p>
+            <p className="text-xs text-gray-400 mb-3">{t('market.bestPricesSubtitle')}</p>
 
             <div className="space-y-2">
                 {crops.map((crop, index) => {

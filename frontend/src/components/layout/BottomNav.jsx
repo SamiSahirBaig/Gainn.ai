@@ -1,14 +1,16 @@
 import { Link, useLocation } from 'react-router-dom'
-
-const navItems = [
-    { path: '/dashboard', label: 'Home', icon: '🏠' },
-    { path: '/land-analysis', label: 'Analyze', icon: '🗺️' },
-    { path: '/market', label: 'Market', icon: '📈' },
-    { path: '/results', label: 'Results', icon: '📋' },
-]
+import { useTranslation } from 'react-i18next'
 
 export default function BottomNav() {
     const location = useLocation()
+    const { t } = useTranslation()
+
+    const navItems = [
+        { path: '/dashboard', label: t('nav.home'), icon: '🏠' },
+        { path: '/land-analysis', label: t('nav.analyzeLand'), icon: '🗺️' },
+        { path: '/market', label: t('nav.marketPrices'), icon: '📈' },
+        { path: '/results', label: t('nav.cropResults'), icon: '📋' },
+    ]
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-gray-200 lg:hidden">
@@ -20,8 +22,8 @@ export default function BottomNav() {
                             key={item.path}
                             to={item.path}
                             className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-xl min-w-[60px] transition-all duration-200 ${isActive
-                                    ? 'text-primary-600 bg-primary-50'
-                                    : 'text-gray-400 hover:text-gray-600'
+                                ? 'text-primary-600 bg-primary-50'
+                                : 'text-gray-400 hover:text-gray-600'
                                 }`}
                         >
                             <span className={`text-2xl ${isActive ? 'scale-110' : ''} transition-transform`}>

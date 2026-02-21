@@ -102,6 +102,14 @@
 - [x] QuickActions — linked to real routes *(Issue #34)*
 - [x] RecentAnalyses — live from backend *(Issue #34)*
 - [x] StatsCard — live from backend *(Issue #34)*
+- [x] LanguageSwitcher — dropdown with flag icons for 4 languages
+
+### Frontend — Internationalization (i18n)
+- [x] `i18next` + `react-i18next` + `i18next-browser-languagedetector` installed
+- [x] i18n config (`src/i18n/index.js`) with localStorage persistence (`gainnai_language`)
+- [x] Translation files: `en.json`, `hi.json`, `mr.json`, `te.json` in `src/i18n/locales/`
+- [x] Full translations covering: nav, dashboard stats, weather, market insights, live feed, quick actions, nearby markets, analysis form, results, login, common strings
+- [x] 15 components updated with `useTranslation()`: Header, Sidebar, BottomNav, Dashboard, Market, RecentAnalyses, WeatherWidget, MarketInsights, LiveMarketFeed, QuickActions, NearbyMarkets, TopRecommendedCrops, HighDemandCrops, LowDemandCrops, BestPriceCrops, BestMarkets
 
 ### Frontend ↔ Backend Integration *(Issue #34)*
 - [x] Login/Register → `POST /auth/login` + `POST /auth/register`
@@ -138,7 +146,7 @@
 - [x] **AGMARKNET API key** — Added to `.env` ✅
 
 ### 🟡 High Priority (Polish for Hackathon)
-- [ ] **Multi-language support (i18n)** — Hindi, Marathi, Telugu translations for farmer accessibility
+- [x] **Multi-language support (i18n)** — Hindi, Marathi, Telugu translations ✅
 - [ ] **Voice input** — Speech-to-text for form fields (farmers with low literacy)
 - [ ] **Text-to-Speech** — Read recommendations aloud
 - [ ] **Export analysis to PDF** — Download crop recommendation report
@@ -153,7 +161,6 @@
 - [ ] Admin dashboard for user management
 - [ ] Celery background workers for long-running analyses
 - [ ] Real-time notifications (WebSocket) for analysis completion
-- [ ] Update `README.md` to document new features (#28–#34)
 - [ ] Update `ARCHITECTURE.md` to reflect market intelligence pipeline
 
 ### 🟢 Low Priority (Nice-to-Have)
@@ -178,18 +185,18 @@
 | Database Models | 6 models | — |
 | ML Models | 4 models | — |
 | Frontend Pages | 5 pages | — |
-| Frontend Components | 25+ components | — |
+| Frontend Components | 27+ components | — |
 | Frontend ↔ Backend | 10 connections | — |
 | Tests | 33/33 ✅ | — |
 | Market Data | 60 APMC markets | — |
 | **API Keys** | 3/3 configured ✅ | — |
+| **i18n** | 4 languages ✅ | — |
 | **Deployment** | Docker Compose | **Production deploy** |
-| **i18n / Voice** | Not started | **For hackathon** |
-| **PWA / Offline** | Not started | **For hackathon** |
+| **Voice / PWA** | Not started | **For hackathon** |
 
-### Completion Estimate: **~90% done**
+### Completion Estimate: **~93% done**
 
-**Core app is fully functional with all live API integrations.**
+**Core app is fully functional with all live API integrations and multi-language support.**
 Remaining:
 1. **Deployment** (hosting + domain)
-2. **Accessibility** (i18n, voice, offline) — hackathon differentiators
+2. **Accessibility** (voice, offline) — hackathon differentiators

@@ -1,20 +1,23 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import MarketCard from './MarketCard'
 import MarketMap from './MarketMap'
 import marketService from '@/services/marketService'
 
+
 const RADIUS_OPTIONS = [25, 50, 100, 200]
-const SORT_OPTIONS = [
-    { value: 'distance', label: '📍 Nearest' },
-    { value: 'best_price', label: '💰 Best Price' },
-    { value: 'demand', label: '🔥 Demand' },
-]
 
 // Default coordinates (central India) — used when no land is stored
 const DEFAULT_LAT = 20.5937
 const DEFAULT_LNG = 78.9629
 
 export default function NearbyMarkets() {
+    const { t } = useTranslation()
+    const SORT_OPTIONS = [
+        { value: 'distance', label: t('nearbyMarkets.nearest') },
+        { value: 'best_price', label: t('nearbyMarkets.bestPrice') },
+        { value: 'demand', label: t('nearbyMarkets.demand') },
+    ]
     const [markets, setMarkets] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -95,10 +98,10 @@ export default function NearbyMarkets() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div>
                     <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                        🏪 Nearby Markets
+                        🏪 {t('nearbyMarkets.title')}
                     </h3>
                     <p className="text-xs text-gray-400 mt-0.5">
-                        {markets.length} market{markets.length !== 1 ? 's' : ''} within {radius} km
+                        {markets.length} {t('nearbyMarkets.marketsFound')} • {radius} {t('nearbyMarkets.km')}
                     </p>
                 </div>
                 <div className="flex items-center gap-2">

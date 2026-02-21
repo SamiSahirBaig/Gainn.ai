@@ -1,14 +1,18 @@
+import { useTranslation } from 'react-i18next'
+
 export default function BestMarkets({ markets }) {
+    const { t } = useTranslation()
+
     if (!markets?.length) {
         return (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
                 <h2 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                    🏪 Best Markets Nearby
+                    {t('market.bestMarkets')}
                 </h2>
-                <p className="text-sm text-gray-400 mt-2">Analyze your land first to see markets near you</p>
+                <p className="text-sm text-gray-400 mt-2">{t('market.analyzeLandFirst')}</p>
                 <div className="mt-3 text-center p-6 bg-gray-50 rounded-xl">
                     <span className="text-4xl">🗺️</span>
-                    <p className="text-sm text-gray-500 mt-2">No location set</p>
+                    <p className="text-sm text-gray-500 mt-2">{t('market.noLocation')}</p>
                 </div>
             </div>
         )
@@ -17,9 +21,9 @@ export default function BestMarkets({ markets }) {
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <h2 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                🏪 Best Markets Nearby
+                {t('market.bestMarkets')}
             </h2>
-            <p className="text-xs text-gray-400 mb-3">Top markets sorted by best prices</p>
+            <p className="text-xs text-gray-400 mb-3">{t('market.bestMarketsSubtitle')}</p>
 
             <div className="space-y-2">
                 {markets.map((market) => (

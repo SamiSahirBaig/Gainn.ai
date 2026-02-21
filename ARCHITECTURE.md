@@ -4,7 +4,7 @@
 **Last Updated:** February 22, 2026  
 **Status:** MVP Complete — Hackathon Ready
 
-> **Recent additions (Issues #28–#34):** Weather Service (OpenWeatherMap), Market Data Service (AGMARKNET), Market Intelligence Engine (demand scoring + seasonal analysis), 60 APMC market locations, ErrorBoundary, Farmer-Friendly UI redesign. What-If Simulation removed from frontend (backend preserved).
+> **Recent additions (Issues #28–#34):** Weather Service (OpenWeatherMap), Market Data Service (AGMARKNET), Market Intelligence Engine (demand scoring + seasonal analysis), 60 APMC market locations, ErrorBoundary, Farmer-Friendly UI redesign, **Multi-language support (i18n) — English, Hindi, Marathi, Telugu**. What-If Simulation removed from frontend (backend preserved).
 
 ---
 
@@ -161,6 +161,9 @@ frontend/
 │   ├── styles/
 │   │   ├── global.css
 │   │   └── tailwind.css
+│   ├── i18n/
+│   │   ├── index.js           # i18next config
+│   │   └── locales/           # en.json, hi.json, mr.json, te.json
 │   ├── App.jsx
 │   └── main.jsx
 ├── package.json
@@ -179,6 +182,7 @@ frontend/
 - **Forms:** React Hook Form + Zod validation
 - **HTTP Client:** Axios
 - **Routing:** React Router v6
+- **i18n:** i18next + react-i18next + i18next-browser-languagedetector (EN, HI, MR, TE)
 
 ---
 
@@ -321,6 +325,7 @@ backend/
 | Maps | React-Leaflet | Geospatial display |
 | HTTP Client | Axios | API requests |
 | Routing | React Router v6 | Client-side routing |
+| i18n | i18next + react-i18next | Multi-language (EN, HI, MR, TE) |
 
 ### Backend Stack
 | Component | Technology | Purpose |

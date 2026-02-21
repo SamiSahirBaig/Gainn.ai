@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 const DEMAND_COLORS = {
     high: { bg: 'bg-emerald-50', text: 'text-emerald-700', ring: 'ring-emerald-200' },
     medium: { bg: 'bg-amber-50', text: 'text-amber-700', ring: 'ring-amber-200' },
@@ -5,14 +7,15 @@ const DEMAND_COLORS = {
 }
 
 export default function TopRecommendedCrops({ crops }) {
+    const { t } = useTranslation()
     if (!crops?.length) return null
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <h2 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                🌟 Top 5 Recommended Crops
+                {t('market.topRecommended')}
             </h2>
-            <p className="text-xs text-gray-400 mb-4">Best crops for you based on demand, price, and season</p>
+            <p className="text-xs text-gray-400 mb-4">{t('market.topSubtitle')}</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                 {crops.map((crop, index) => {
@@ -21,14 +24,14 @@ export default function TopRecommendedCrops({ crops }) {
                         <div
                             key={crop.name}
                             className={`relative rounded-xl border-2 p-4 transition-all hover:shadow-md ${index === 0 ? 'border-emerald-300 bg-emerald-50/30' :
-                                    index === 1 ? 'border-blue-200 bg-blue-50/20' :
-                                        'border-gray-100'
+                                index === 1 ? 'border-blue-200 bg-blue-50/20' :
+                                    'border-gray-100'
                                 }`}
                         >
                             {/* Rank badge */}
                             <div className={`absolute -top-2.5 left-3 px-2 py-0.5 rounded-full text-[10px] font-bold ${index === 0 ? 'bg-amber-400 text-white' :
-                                    index === 1 ? 'bg-gray-300 text-white' :
-                                        'bg-gray-200 text-gray-500'
+                                index === 1 ? 'bg-gray-300 text-white' :
+                                    'bg-gray-200 text-gray-500'
                                 }`}>
                                 #{index + 1}
                             </div>
@@ -42,7 +45,7 @@ export default function TopRecommendedCrops({ crops }) {
                             {/* Demand badge */}
                             <div className="text-center mb-2">
                                 <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ring-1 ring-inset ${dc.bg} ${dc.text} ${dc.ring}`}>
-                                    {crop.demand === 'high' ? '🔥' : ''} {crop.demand} demand
+                                    {crop.demand === 'high' ? '🔥' : ''} {crop.demand} {t('market.demand')}
                                 </span>
                             </div>
 
@@ -53,7 +56,7 @@ export default function TopRecommendedCrops({ crops }) {
                                 </p>
                                 {crop.profit_per_acre && (
                                     <p className="text-xs text-emerald-600 font-medium">
-                                        💰 ₹{(crop.profit_per_acre / 1000).toFixed(0)}k profit/acre
+                                        💰 ₹{(crop.profit_per_acre / 1000).toFixed(0)}k {t('market.profitPerAcre')}
                                     </p>
                                 )}
                             </div>

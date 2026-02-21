@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import marketService from '@/services/marketService'
 
 const TREND_STYLES = {
@@ -26,6 +27,7 @@ export default function LiveMarketFeed() {
     const [lastUpdated, setLastUpdated] = useState(null)
     const [dataSource, setDataSource] = useState('estimated')
     const [expanded, setExpanded] = useState(false)
+    const { t } = useTranslation()
 
     const fetchPrices = useCallback(async () => {
         try {
@@ -59,11 +61,11 @@ export default function LiveMarketFeed() {
             <div className="flex items-center justify-between mb-4">
                 <div>
                     <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        📈 Live Market Prices
+                        {t('liveFeed.title')}
                     </h3>
                     <p className="text-xs text-gray-400 mt-0.5">
-                        {dataSource === 'AGMARKNET' ? '🟢 Live from AGMARKNET' : '🟡 Estimated prices'}
-                        {lastUpdated && ` • Updated ${lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                        {dataSource === 'AGMARKNET' ? t('liveFeed.liveFrom') : t('liveFeed.estimated')}
+                        {lastUpdated && ` • ${t('liveFeed.updated')} ${lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
                     </p>
                 </div>
                 <button
@@ -71,7 +73,7 @@ export default function LiveMarketFeed() {
                     className="text-sm text-gray-400 hover:text-primary-500 transition-colors px-3 py-1.5 rounded-lg hover:bg-primary-50"
                     title="Refresh prices"
                 >
-                    🔄 Refresh
+                    {t('liveFeed.refresh')}
                 </button>
             </div>
 
@@ -89,8 +91,8 @@ export default function LiveMarketFeed() {
                                 <div
                                     key={crop.name}
                                     className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border transition-all hover:shadow-sm ${crop.trend === 'up' ? 'border-emerald-100 hover:border-emerald-200' :
-                                            crop.trend === 'down' ? 'border-red-100 hover:border-red-200' :
-                                                'border-gray-100 hover:border-gray-200'
+                                        crop.trend === 'down' ? 'border-red-100 hover:border-red-200' :
+                                            'border-gray-100 hover:border-gray-200'
                                         }`}
                                 >
                                     <span className="text-2xl flex-shrink-0">{crop.icon}</span>
@@ -117,7 +119,7 @@ export default function LiveMarketFeed() {
                             onClick={() => setExpanded(!expanded)}
                             className="w-full mt-3 py-2 text-xs text-gray-400 hover:text-primary-500 transition-colors rounded-lg hover:bg-gray-50"
                         >
-                            {expanded ? '▲ Show less' : `▼ Show all ${crops.length} crops`}
+                            {expanded ? t('liveFeed.showLess') : t('liveFeed.showAll', { count: crops.length })}
                         </button>
                     )}
                 </>
