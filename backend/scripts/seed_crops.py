@@ -39,16 +39,12 @@ def seed():
                 name=c["name"],
                 category=c.get("category", ""),
                 growth_duration=c.get("growth_duration"),
-                min_temperature=c.get("temp_min"),
-                max_temperature=c.get("temp_max"),
-                min_rainfall=c.get("rainfall_min"),
-                max_rainfall=c.get("rainfall_max"),
-                min_ph=c.get("ph_min"),
-                max_ph=c.get("ph_max"),
-                preferred_soil_types=c.get("soil_types", []),
-                nitrogen_requirement=c.get("nitrogen"),
-                phosphorus_requirement=c.get("phosphorus"),
-                potassium_requirement=c.get("potassium"),
+                optimal_temp_min=c.get("temp_min"),
+                optimal_temp_max=c.get("temp_max"),
+                water_requirement=c.get("rainfall_min"),  # approximate
+                optimal_ph_min=c.get("ph_min"),
+                optimal_ph_max=c.get("ph_max"),
+                preferred_soil_types=",".join(c.get("soil_types", [])),
             )
             db.add(crop)
             added += 1

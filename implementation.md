@@ -4,19 +4,33 @@
 
 ---
 
-## 🚀 Absolute Quickest Start
-If you just want to run the pre-configured project right now without reading anything else, open **two terminals** and run these commands from the `Gainn.ai` project root:
+## 🚀 Quick Start (Fedora — Complete First-Time Setup)
 
-**Terminal 1 (Backend + DB):**
 ```bash
-cd backend && source venv/bin/activate && uvicorn app.main:app --reload
-```
+# 1. Start services
+sudo postgresql-setup --initdb          # Only needed once, ever
+sudo systemctl start postgresql && sudo systemctl enable postgresql
+sudo systemctl start redis && sudo systemctl enable redis
 
-**Terminal 2 (Frontend):**
-```bash
+# 2. Create database (run once)
+sudo -u postgres psql -c "CREATE USER rootaura WITH PASSWORD 'password';"
+sudo -u postgres psql -c "CREATE DATABASE rootaura OWNER rootaura;"
+sudo sed -i 's/ident$/md5/g' /var/lib/pgsql/data/pg_hba.conf
+sudo systemctl restart postgresql
+
+# 3. Backend setup (Terminal 1)
+cd backend && source venv/bin/activate
+alembic upgrade head
+python scripts/seed_users.py
+python scripts/seed_crops.py
+python -m app.ml.train_yield_model       # Train ML model (~10s)
+uvicorn app.main:app --reload
+
+# 4. Frontend (Terminal 2)
 cd frontend && npm run dev
 ```
-*(The database and seed data are already configured on your machine, so you only need to run the servers!)*
+
+Open http://localhost:5173 → Login: `farmer@gainn.ai` / `Farmer@123`
 
 ---
 

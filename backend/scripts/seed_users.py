@@ -20,21 +20,18 @@ TEST_USERS = [
     {
         "email": "admin@gainn.ai",
         "full_name": "Admin User",
-        "phone": "+91-9000000001",
         "password": "Admin@123",
         "is_superuser": True,
     },
     {
         "email": "farmer@gainn.ai",
         "full_name": "Test Farmer",
-        "phone": "+91-9000000002",
         "password": "Farmer@123",
         "is_superuser": False,
     },
     {
         "email": "demo@gainn.ai",
         "full_name": "Demo User",
-        "phone": "+91-9000000003",
         "password": "Demo@123",
         "is_superuser": False,
     },
@@ -56,7 +53,6 @@ def seed():
             user = User(
                 email=u["email"],
                 full_name=u["full_name"],
-                phone=u["phone"],
                 hashed_password=get_password_hash(u["password"]),
                 is_active=True,
                 is_superuser=u["is_superuser"],

@@ -1,4 +1,4 @@
-# RootAura - System Architecture
+# Gainn.ai - System Architecture
 
 **Version:** 1.0  
 **Last Updated:** February 2026  
@@ -21,7 +21,7 @@
 
 ## 1. Architecture Overview
 
-RootAura follows a **modern full-stack architecture** with React frontend and Python backend:
+Gainn.ai follows a **modern full-stack architecture** with React frontend and Python backend:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -816,4 +816,4 @@ async def get_current_user(
 
 **Document Status:** ✅ Updated for React + Python Stack  
 **Next Review:** Post-MVP Development  
-**Maintained By:** RootAura Engineering Team
+**Maintained By:** Gainn.ai Engineering Team
