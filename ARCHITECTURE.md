@@ -1,8 +1,10 @@
-# RootAura - System Architecture
+# Gainn.ai - System Architecture
 
-**Version:** 1.0  
-**Last Updated:** February 2026  
-**Status:** MVP Design Phase
+**Version:** 1.1  
+**Last Updated:** February 22, 2026  
+**Status:** MVP Complete — Hackathon Ready
+
+> **Recent additions (Issues #28–#34):** Weather Service (OpenWeatherMap), Market Data Service (AGMARKNET), Market Intelligence Engine (demand scoring + seasonal analysis), 60 APMC market locations, ErrorBoundary, Farmer-Friendly UI redesign, **Multi-language support (i18n) — English, Hindi, Marathi, Telugu**. What-If Simulation removed from frontend (backend preserved).
 
 ---
 
@@ -21,7 +23,7 @@
 
 ## 1. Architecture Overview
 
-RootAura follows a **modern full-stack architecture** with React frontend and Python backend:
+Gainn.ai follows a **modern full-stack architecture** with React frontend and Python backend:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -159,6 +161,9 @@ frontend/
 │   ├── styles/
 │   │   ├── global.css
 │   │   └── tailwind.css
+│   ├── i18n/
+│   │   ├── index.js           # i18next config
+│   │   └── locales/           # en.json, hi.json, mr.json, te.json
 │   ├── App.jsx
 │   └── main.jsx
 ├── package.json
@@ -177,6 +182,7 @@ frontend/
 - **Forms:** React Hook Form + Zod validation
 - **HTTP Client:** Axios
 - **Routing:** React Router v6
+- **i18n:** i18next + react-i18next + i18next-browser-languagedetector (EN, HI, MR, TE)
 
 ---
 
@@ -319,6 +325,7 @@ backend/
 | Maps | React-Leaflet | Geospatial display |
 | HTTP Client | Axios | API requests |
 | Routing | React Router v6 | Client-side routing |
+| i18n | i18next + react-i18next | Multi-language (EN, HI, MR, TE) |
 
 ### Backend Stack
 | Component | Technology | Purpose |
@@ -816,4 +823,4 @@ async def get_current_user(
 
 **Document Status:** ✅ Updated for React + Python Stack  
 **Next Review:** Post-MVP Development  
-**Maintained By:** RootAura Engineering Team
+**Maintained By:** Gainn.ai Engineering Team

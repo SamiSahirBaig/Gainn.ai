@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+      },
       colors: {
         primary: {
           50: '#f0fdf4',
@@ -19,6 +22,9 @@ export default {
           800: '#166534',
           900: '#14532d',
         },
+      },
+      spacing: {
+        sidebar: '16rem',
       },
     },
   },

@@ -16,7 +16,7 @@ services:
     networks:
       - rootaura-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rootaura"]
+      test: [ "CMD-SHELL", "pg_isready -U rootaura" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,7 +32,7 @@ services:
     networks:
       - rootaura-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -63,6 +63,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: rootaura-backend
+    restart: unless-stopped
     environment:
       ENVIRONMENT: development
       DATABASE_URL: postgresql://rootaura:rootaura_dev_password@postgres:5432/rootaura
@@ -85,6 +86,12 @@ services:
         condition: service_healthy
     networks:
       - rootaura-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/health" ]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   # Celery Worker (Background Tasks)
@@ -117,6 +124,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: rootaura-frontend
+    restart: unless-stopped
     environment:
       VITE_API_URL: http://localhost:8000
     ports:

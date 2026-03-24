@@ -276,6 +276,9 @@ Gainn.ai/
 │   │   │   └── Market.jsx
 │   │   ├── services/        # API services
 │   │   ├── store/           # Redux store
+│   │   ├── i18n/            # Internationalization
+│   │   │   ├── index.js     # i18n config
+│   │   │   └── locales/     # en.json, hi.json, mr.json, te.json
 │   │   ├── hooks/           # Custom hooks
 │   │   └── utils/           # Utility functions
 │   └── package.json
